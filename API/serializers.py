@@ -79,17 +79,28 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(many=False, read_only=True)
     class Meta:
         model = CartItem
         fields = ['id', 'cart', 'product', 'quantity']
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'cart']
+
+    def update(self, instance, validated_data):
+        instance.quantity = validated_data.get('quantity', instance.quantity)
+        
+        if instance.quantity == 0:
+            instance.delete()
+        else:
+            instance.save()
+        return instance
 
 class CartSerializer(serializers.ModelSerializer):
-    cartitem_set = CartItemSerializer(many=True, read_only=True, source='cartitem_set')
+    cart_items = CartItemSerializer(many=True, read_only=True)
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'products', 'cartitem_set']
+        fields = ['id', 'user', 'products', 'cart_items']
         read_only_fields = ['id']
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:

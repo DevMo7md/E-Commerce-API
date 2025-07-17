@@ -150,3 +150,48 @@ class CategoryDetails(APIView):
         category.delete()
         return Response({'message':'category deleted successfully'},status=status.HTTP_204_NO_CONTENT)
     
+
+class CartList(APIView):
+
+    permission_classes = [IsAuthenticated]  
+
+    def get(self, request):
+        user = self.request.user
+        cart, created = Cart.objects.get_or_create(user=user)
+        serializer = CartSerializer(cart, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        user = self.request.user
+        product_id = request.data.get('product_id')
+        quantity = int(request.data.get('quantity', 1))
+
+        product = get_object_or_404(Product, id=product_id)
+        cart, created = Cart.objects.get_or_create(user=user)
+
+        cart_item, cart_item_created = CartItem.objects.get_or_create(cart=cart, product=product, defaults={'quantity':quantity})
+
+        if not cart_item_created:
+            cart_item.quantity += quantity
+
+        cart_item.save()
+        return Response({'message': 'cart updated successfully'}, status= status.HTTP_200_OK)
+
+
+class CartItemDetails(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        cart_item = get_object_or_404(CartItem, pk=pk)
+        serializer = CartItemSerializer(cart_item ,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'cart item updated'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        cart_item = get_object_or_404(CartItem, pk=pk)
+        cart_item.delete()
+        return Response({'message':'Item deleted'}, status=status.HTTP_204_NO_CONTENT)
+    
