@@ -48,7 +48,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     photo = models.ImageField(upload_to='products/', null=True, blank=True)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     is_available = models.BooleanField(default=True)
     is_sale = models.BooleanField(default=False)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -60,7 +60,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.is_sale and self.sale_percentage:
+        if self.is_sale and self.sale_percentage != 0 :
             discount = Decimal(self.sale_percentage) / Decimal('100')
             self.sale_price = self.price * (Decimal('1') - discount)
         else:

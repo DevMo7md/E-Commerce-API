@@ -47,15 +47,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'fullname', 'phone_num', 'address']
         read_only_fields = ['id']
 
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = [
-            'id', 'name', 'price', 'photo', 'description', 'is_available', 'quantity', 'is_sale',
-            'sale_percentage','sale_price', 'seller', 'brand', 'created_at', 'category'
-        ]
-        read_only_fields = ['id', 'created_at']
-
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
@@ -70,6 +61,22 @@ class ReviewSerializer(serializers.ModelSerializer):
         if not (1 <= value <= 5):
             raise serializers.ValidationError("Rate must be between 1 and 5")
         return value
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    reviews = ReviewSerializer(many=True, read_only=True)
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'name', 'price', 'photo', 'description', 'is_available', 'quantity', 'is_sale',
+            'sale_percentage','sale_price', 'seller', 'brand', 'created_at', 'category', 'reviews'
+        ]
+        read_only_fields = ['id', 'created_at', 'sale_price']
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return Product.objects.create(seller=user, **validated_data)
+
 
 class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
