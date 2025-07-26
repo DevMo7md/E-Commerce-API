@@ -4,6 +4,7 @@ from .models import (
 )
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from django.shortcuts import get_object_or_404
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -65,13 +66,14 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
+    category_detail = CategorySerializer(read_only=True, source='category')
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'price', 'photo', 'description', 'is_available', 'quantity', 'is_sale',
-            'sale_percentage','sale_price', 'seller', 'brand', 'created_at', 'category', 'reviews'
+            'sale_percentage','sale_price', 'seller', 'brand', 'created_at', 'category', 'reviews', 'num_of_sales', 'category_detail'
         ]
-        read_only_fields = ['id', 'created_at', 'sale_price']
+        read_only_fields = ['id', 'created_at', 'sale_price', 'num_of_sales']
 
     def create(self, validated_data):
         user = self.context["request"].user
@@ -103,20 +105,59 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField()
     class Meta:
         model = OrderItem
-        fields = ['id', 'order', 'product', 'quantity']
-        read_only_fields = ['id']
+        fields = ['id', 'order', 'product', 'product_id', 'quantity']
+        read_only_fields = ['id', 'order', 'product']
 
 class OrderSerializer(serializers.ModelSerializer):
-    order_items = OrderItemSerializer(many=True, read_only=True)
+    items = OrderItemSerializer(many=True, write_only=True)# for POST
+    order_items = OrderItemSerializer(many=True, read_only=True)# for GET
     class Meta:
         model = Order
         fields = [
-            'id', 'user', 'address', 'date_of_order', 'payment_status',
-            'total_price', 'total_amount', 'order_items'
+            'id', 'user', 'address', 'date_of_order', 'payment_status','status', 
+            'total_price', 'total_items', 'order_items', 'items', 'shipping_status'
         ]
-        read_only_fields = ['id', 'date_of_order']
+        read_only_fields = ['id', 'date_of_order', 'total_items', 'total_price', 'user' , 'payment_status','status']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        address = get_object_or_404(Address, user=user)
+
+        order = Order.objects.create(user=user, address=address)
+
+        items_data = self.context['request'].data.get('items', [])
+        total_price = 0
+        total_items = 0
+
+        for item_data in items_data:
+            product = get_object_or_404(Product, id=item_data['product_id'])
+            quantity = item_data['quantity']
+            OrderItem.objects.create(order=order, product=product, quantity=quantity)
+
+            total_items += quantity
+            if product.is_sale and product.sale_price:
+                total_price += quantity * product.sale_price
+            else:
+                total_price += quantity * product.price
+
+        order.total_items = total_items
+        order.total_price = total_price
+        if order.shipping_status == 'ON_DELIVERED':
+            order.payment_status = 'PAID'
+        order.save()
+        cart, _ = Cart.objects.get_or_create(user=order.user)
+        if order.payment_status == 'PAID':
+                cart.products.clear()
+                cart.save()
+        return order
+
+class OrderDeleviringSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['payment_status' ,'status']
 
 class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:

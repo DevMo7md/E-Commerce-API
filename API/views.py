@@ -17,7 +17,6 @@ from rest_framework.decorators import permission_classes
 from .models import *
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
-# Create your views here.
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -78,6 +77,26 @@ class ProductDetails(APIView):
         product.delete()
         return Response({'message':'Product deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
+class RelatedProducts(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, product_id):
+        product = get_object_or_404(Product, pk=product_id)
+        category = product.category
+        related_products = Product.objects.filter(category=category).exclude(id=product.id).order_by('-num_of_sales')[:10]
+        serializer = ProductSerializer(related_products, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK )
+    
+
+class TopProducts(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        top_products = Product.objects.order_by('-num_of_sales')[:10]
+        serializer = ProductSerializer(top_products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK )
+
+
 class Reviews(APIView):
 
     def get_permissions(self):
@@ -104,14 +123,21 @@ class ReviewDetails(APIView):
     
     def put(self, request, pk):
         review = get_object_or_404(Review, pk=pk)
+        if request.user != review.user:
+            return Response({'message':'You are not allowed to edit'}, status=status.HTTP_403_FORBIDDEN)
+    
         serializer = ReviewSerializer(review, data=request.data, context={'request':request})
         if serializer.is_valid():
             serializer.save()
             return Response({'message':'review updated successfully'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
     
     def delete(self, request, pk):
         review = get_object_or_404(Review, pk=pk)
+        if request.user != review.user:
+            return Response({'message':'You are not allowed to edit'}, status=status.HTTP_403_FORBIDDEN)
+        
         review.delete()
         return Response({'message':'review deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     
@@ -195,3 +221,75 @@ class CartItemDetails(APIView):
         cart_item.delete()
         return Response({'message':'Item deleted'}, status=status.HTTP_204_NO_CONTENT)
     
+
+class Orders(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.is_staff:
+            orders = Order.objects.all().order_by('date_of_order')
+        else :
+            orders = Order.objects.filter(user=request.user).order_by('date_of_order')
+        pagenator = PageNumberPagination()
+        pagenated_orders = pagenator.paginate_queryset(orders, request)
+        serializer = OrderSerializer(pagenated_orders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class Order_datails(APIView):
+
+    permission_classes = [IsAuthenticated]
+    def get(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+        if self.request.user == order.user:
+            serializer = OrderSerializer(order, many=False)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'messaage':'This page is not allowed for you'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = OrderSerializer(data=request.data, context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Order is created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+class OrderDeleviring(APIView):
+    permission_classes = [IsAdminUser]
+
+    def put(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+        cart, _ = Cart.objects.get_or_create(user=order.user)
+        serializer = OrderDeleviringSerializer(order, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            order.refresh_from_db()
+
+            if order.payment_status == 'PAID':
+                cart.products.clear()
+            def update_product_sales(order_items, add=True):
+                for item in order_items:
+                    if add:
+                        item.product.num_of_sales += item.quantity
+                    else:
+                        item.product.num_of_sales = max(0, item.product.num_of_sales - item.quantity)
+                    item.product.save()
+
+            if order.status == 'DELIVERED' and order.payment_status == 'PAID' :
+                update_product_sales(order.order_items.all(), add=True)
+                
+            elif order.status == 'RETRIEVED' and order.payment_status == 'REFUNDED' :
+                update_product_sales(order.order_items.all(), add=False)
+                
+                    
+            return Response({'message':'Order status updated'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+

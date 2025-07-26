@@ -1,9 +1,9 @@
+from typing import Iterable
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.conf import settings
 import uuid
 from decimal import Decimal
-# Create your models here.
 
 class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -58,6 +58,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=1, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    num_of_sales = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if self.is_sale and self.sale_percentage != 0 :
@@ -66,6 +67,7 @@ class Product(models.Model):
         else:
             self.sale_price = None
         super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -94,13 +96,34 @@ class CartItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
 
+class PaymentStatus(models.TextChoices):
+    PENDING = 'PENDING', 'قيد الانتظار'
+    PAID = 'PAID', 'تم الدفع'
+    FAILED = 'FAILED', 'فشل'
+    REFUNDED = 'REFUNDED', 'تم استرداد المبلغ'
+
+class OrderStatus(models.TextChoices):
+    PENDING = 'PENDING', 'قيد التوصيل'
+    DELIVERED = 'DELIVERED', 'تم التوصيل'
+    FAILED = 'FAILED', 'فشل التوصيل'
+    RETRIEVED = 'RETRIEVED', 'تم الاسترجاع'
+
+class ShippingStatus(models.TextChoices):
+    ON_DELIVERED = 'ON_DELIVERED', 'الدفع عند التوصيل'
+    CARD = 'CARD', 'بالفيزا'
+
+
+
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
     date_of_order = models.DateTimeField(auto_now_add=True)
-    payment_status = models.CharField(max_length=50)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    total_amount = models.PositiveIntegerField()
+    payment_status = models.CharField(max_length=50, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
+    status = models.CharField(max_length=50, choices=OrderStatus.choices, default=OrderStatus.PENDING)
+    shipping_status = models.CharField(max_length=50, choices=ShippingStatus.choices, default=ShippingStatus.ON_DELIVERED)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    total_items = models.PositiveIntegerField(null=True, blank=True)
+
 
     def __str__(self):
         return f"Order #{self.id} by {self.user.email}"
@@ -121,4 +144,4 @@ class Purchase(models.Model):
     def __str__(self):
         return f"Purchase by {self.user.email} on {self.purchase_date}"
 
-# Optionally, you can add ShippingSystem and PaymentProcess models if you want to track those separately.
+
