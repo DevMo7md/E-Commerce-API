@@ -160,6 +160,7 @@ class OrderDeleviringSerializer(serializers.ModelSerializer):
         fields = ['payment_status' ,'status']
 
 class PurchaseSerializer(serializers.ModelSerializer):
+    products = ProductSerializer(many=True, read_only=True)
     class Meta:
         model = Purchase
         fields = ['id', 'user', 'products', 'purchase_date']

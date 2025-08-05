@@ -12,11 +12,19 @@ from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly, BasePermission
 from rest_framework.decorators import permission_classes
 from .models import *
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
+
+
+class IsDeliveryOrSuperUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and (request.user.is_superuser or request.user.is_delivery)
+class IsSellerOrSuperUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and (request.user.is_superuser or request.user.is_seller)
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -36,7 +44,7 @@ class LogoutView(APIView):
 class Products(APIView):
     def get_permissions(self):
         if self.request.method == 'POST':
-            return [IsAdminUser()]
+            return [IsSellerOrSuperUser()]
         return [AllowAny()]
 
     def get(self, request):
@@ -57,7 +65,7 @@ class ProductDetails(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             return [AllowAny()]
-        return [IsAdminUser()]
+        return [IsSellerOrSuperUser()]
     
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
@@ -88,6 +96,27 @@ class RelatedProducts(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK )
     
+class SuggestedProducts(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        purchase = Purchase.objects.filter(user=user).first()
+        if not purchase:
+            return Response([], status=status.HTTP_200_OK)
+
+        purchase_categories = set(
+            purchase.products.values_list('category', flat=True).distinct()
+        )
+
+        products = Product.objects.filter(
+            category__in=purchase_categories,
+            category__isnull=False
+        ).order_by('-num_of_sales')[:20]
+
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class TopProducts(APIView):
     permission_classes = [AllowAny]
@@ -229,6 +258,9 @@ class Orders(APIView):
     def get(self, request):
         if request.user.is_staff:
             orders = Order.objects.all().order_by('date_of_order')
+        elif request.user.is_delivery:
+            status_params = request.query_params.get('status', 'PENDING')
+            orders = Order.objects.filter(status=status_params).order_by('date_of_order')
         else :
             orders = Order.objects.filter(user=request.user).order_by('date_of_order')
         pagenator = PageNumberPagination()
@@ -260,9 +292,25 @@ class OrderCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+def update_product_sales(order_items, add=True):
+    for item in order_items:
+        if item.product:
+            if add:
+                item.product.num_of_sales += item.quantity
+            else:
+                item.product.num_of_sales = max(0, item.product.num_of_sales - item.quantity)
+            item.product.save()
+
+def add_products_to_purchase(user, order_items):
+    purchase, _ = Purchase.objects.get_or_create(user=user)
+    existing_products = set(purchase.products.values_list('id', flat=True))
+    for item in order_items:
+        if item.product and item.product.id not in existing_products:
+            purchase.products.add(item.product)
+    purchase.save()
 
 class OrderDeleviring(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsDeliveryOrSuperUser]
 
     def put(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
@@ -274,22 +322,23 @@ class OrderDeleviring(APIView):
 
             if order.payment_status == 'PAID':
                 cart.products.clear()
-            def update_product_sales(order_items, add=True):
-                for item in order_items:
-                    if add:
-                        item.product.num_of_sales += item.quantity
-                    else:
-                        item.product.num_of_sales = max(0, item.product.num_of_sales - item.quantity)
-                    item.product.save()
 
+            order_items = order.order_items.all()
             if order.status == 'DELIVERED' and order.payment_status == 'PAID' :
-                update_product_sales(order.order_items.all(), add=True)
+                update_product_sales(order_items, add=True)
+                add_products_to_purchase(order.user, order_items)
                 
             elif order.status == 'RETRIEVED' and order.payment_status == 'REFUNDED' :
-                update_product_sales(order.order_items.all(), add=False)
-                
-                    
+                update_product_sales(order_items, add=False)
+
             return Response({'message':'Order status updated'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+class PurchaseList(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        purchase = get_object_or_404(Purchase, user=user)
+        serializer = PurchaseSerializer(purchase, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
