@@ -48,7 +48,7 @@ class Products(APIView):
         return [AllowAny()]
 
     def get(self, request):
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('-num_of_sales')
         paginator = PageNumberPagination()
         paginated_products = paginator.paginate_queryset(products, request)
         serializer = ProductSerializer(paginated_products, many=True)
@@ -339,6 +339,8 @@ class PurchaseList(APIView):
     
     def get(self, request):
         user = request.user
-        purchase = get_object_or_404(Purchase, user=user)
-        serializer = PurchaseSerializer(purchase, many=False)
+        purchase = Purchase.objects.filter(user=user).order_by('-date_of_purchase')
+        paginator = PageNumberPagination()
+        pagenated_purchase = paginator.paginate_queryset(purchase, request)
+        serializer = PurchaseSerializer(pagenated_purchase, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
