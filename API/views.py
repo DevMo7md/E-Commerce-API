@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -17,7 +17,20 @@ from rest_framework.decorators import permission_classes
 from .models import *
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.cache import cache
+from django.utils.crypto import get_random_string
+from django.urls import reverse
 
+
+# Email verification imports
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth import get_user_model
 
 class IsDeliveryOrSuperUser(BasePermission):
     def has_permission(self, request, view):
@@ -26,8 +39,50 @@ class IsSellerOrSuperUser(BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and (request.user.is_superuser or request.user.is_seller)
 
-class RegisterView(generics.CreateAPIView):
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def verify_email(request, token):
+    data = cache.get(f"register_{token}")
+    if not data:
+        # Temporary url until frontend is ready
+        return redirect('https://yourfrontend.com/email-verification?status=error&reason=expired')
+    # Create user
+    serializer = RegisterSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        cache.delete(f"register_{token}")
+        # Temporary url until frontend is ready
+        return redirect('https://yourfrontend.com/email-verification?status=success')
+    # Temporary url until frontend is ready
+    return redirect('https://yourfrontend.com/email-verification?status=error&reason=invalid_data')
+
+
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            User = get_user_model()
+            if User.objects.filter(email=serializer.validated_data['email']).exists():
+                return Response({'error': 'البريد الإلكتروني مستخدم بالفعل.'}, status=400)
+            
+            token = get_random_string(32)
+            # Store registration data in cache for 5 min
+            cache.set(f"register_{token}", serializer.validated_data, timeout=300)
+
+            verification_link = request.build_absolute_uri(
+                reverse('email-verify', kwargs={'token': token})
+            )
+
+            subject = 'Verify your email'
+            html_message = render_to_string('email/email_verification.html', {'verification_link': verification_link})
+            plain_message = strip_tags(html_message)
+            send_mail(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [serializer.validated_data['email']], html_message=html_message)
+            return Response({'message': 'Please check your email to verify your account.'}, status=201)
+        return Response(serializer.errors, status=400)
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -40,6 +95,45 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_request(request):
+    email = request.data.get('email')
+    User = get_user_model()
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({'message': 'If this email exists, a reset link has been sent.'}, status=200)
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    frontend_base_url = 'https://localhost:3000/reset-password' # Temporary URL until frontend is ready
+    reset_link = f'{frontend_base_url}/{uid}/{token}/'
+    subject = 'Reset Your Password'
+    html_message = render_to_string('email/password_reset.html', {'reset_link': reset_link, 'user': user})
+    plain_message = strip_tags(html_message)
+    send_mail(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [user.email], html_message=html_message)
+    return Response({'message': 'If this email exists, a reset link has been sent.'}, status=200)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_confirm(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return Response({'message': 'Invalid link.'}, status=400)
+    if not default_token_generator.check_token(user, token):
+        return Response({'message': 'Invalid or expired token.'}, status=400)
+    password = request.data.get('password')
+    if not password:
+        return Response({'message': 'Password is required.'}, status=400)
+    user.set_password(password)
+    user.save()
+    return Response({'message': 'Password has been reset successfully.'}, status=200)
+
 
 class Products(APIView):
     def get_permissions(self):
@@ -281,14 +375,24 @@ class Order_datails(APIView):
             return Response({'messaage':'This page is not allowed for you'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+def order_email(order):
+    subject = 'Order Confirmation'
+    html_message = render_to_string('email/order_confirmation.html', {'order': order})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [order.user.email])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
 class OrderCreate(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = OrderSerializer(data=request.data, context={'request':request})
         if serializer.is_valid():
-            serializer.save()
+            order = serializer.save()
+            order_email(order)
             return Response({"message":"Order is created successfully"}, status=status.HTTP_201_CREATED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -344,3 +448,4 @@ class PurchaseList(APIView):
         pagenated_purchase = paginator.paginate_queryset(purchase, request)
         serializer = PurchaseSerializer(pagenated_purchase, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+

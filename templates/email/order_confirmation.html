@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+{% load custom_math %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Your Order Confirmation</title>
+</head>
+<body
+    style="
+    background: #f6f8fa;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    "
+>
+    <table
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="background: #f6f8fa; padding: 24px 0"
+    >
+    <tr>
+        <td align="center">
+        <table
+            width="520"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+            padding: 32px 24px;
+            "
+        >
+            <tr>
+            <td>
+                <div style="text-align: center; margin-bottom: 24px">
+                <!-- <img src="https://yourdomain.com/static/logo.png" alt="Logo" style="width:80px;"> -->
+                <h2 style="color: #007bff; margin: 0">
+                    Thank you for your order!
+                </h2>
+                </div>
+                <div style="margin-bottom: 24px">
+                <p style="margin: 4px 0; color: #22223b">
+                    <strong>Order Number:</strong> {{ order.id|default:"-" }}
+                </p>
+                <p style="margin: 4px 0; color: #22223b">
+                    <strong>Date:</strong> {{ order.date_of_order|date:"Y-m-d H:i"|default:"-" }}
+                </p>
+                <p style="margin: 4px 0; color: #22223b">
+                    <strong>Shipping Address:</strong> {{ order.address|default:"-" }}
+                </p>
+                </div>
+                <table
+                width="100%"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                style="border-collapse: collapse; margin-bottom: 24px"
+                >
+                <thead>
+                    <tr>
+                    <th
+                        style="
+                        border: 1px solid #e0e0e0;
+                        background: #f0f4f8;
+                        color: #22223b;
+                        padding: 8px 12px;
+                        text-align: left;
+                        "
+                    >
+                        Product
+                    </th>
+                    <th
+                        style="
+                        border: 1px solid #e0e0e0;
+                        background: #f0f4f8;
+                        color: #22223b;
+                        padding: 8px 12px;
+                        text-align: left;
+                        "
+                    >
+                        Qty
+                    </th>
+                    <th
+                        style="
+                        border: 1px solid #e0e0e0;
+                        background: #f0f4f8;
+                        color: #22223b;
+                        padding: 8px 12px;
+                        text-align: left;
+                        "
+                    >
+                        Price
+                    </th>
+                    <th
+                        style="
+                        border: 1px solid #e0e0e0;
+                        background: #f0f4f8;
+                        color: #22223b;
+                        padding: 8px 12px;
+                        text-align: left;
+                        "
+                    >
+                        Subtotal
+                    </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if order.order_items.all %} 
+                    {% for item in order.order_items.all %}
+                    <tr>
+                    <td
+                        style="
+                        border: 1px solid #e0e0e0;
+                        background: #fafbfc;
+                        padding: 8px 12px;
+                        "
+                    >
+                        {{ item.product.name|default:"-" }}
+                    </td>
+                    <td
+                        style="
+                        border: 1px solid #e0e0e0;
+                        background: #fafbfc;
+                        padding: 8px 12px;
+                        "
+                    >
+                        {{ item.quantity|default:"-" }}
+                    </td>
+                    <td
+                        style="
+                        border: 1px solid #e0e0e0;
+                        background: #fafbfc;
+                        padding: 8px 12px;
+                        "
+                    >
+                    {% if item.product.is_sale %}
+                        {{ item.product.sale_price|default:"-" }} {% if item.product.get_currency_display %} 
+                        {{item.product.get_currency_display }} {% endif %}
+
+                    {% else %}
+                        {{ item.product.price|default:"-" }} {% if item.product.get_currency_display %} 
+                        {{item.product.get_currency_display }} {% endif %}
+                    {% endif %}
+                    </td>
+                    <td
+                        style="
+                        border: 1px solid #e0e0e0;
+                        background: #fafbfc;
+                        padding: 8px 12px;
+                        "
+                    >
+                        {% if item.product.is_sale %}
+                            {{ item.product.sale_price|multiply:item.quantity }}
+                        {% else %}
+                            {{  item.product.price|multiply:item.quantity }}
+                        {% endif %}
+                    </td>
+                    </tr>
+                    {% endfor %} 
+                    {% else %}
+                    <tr>
+                    <td
+                        colspan="4"
+                        style="
+                        text-align: center;
+                        border: 1px solid #e0e0e0;
+                        background: #fafbfc;
+                        padding: 8px 12px;
+                        "
+                    >
+                        No products found in this order.
+                    </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+                </table>
+                <div
+                style="
+                    text-align: right;
+                    font-size: 18px;
+                    color: #007bff;
+                    font-weight: bold;
+                    margin-bottom: 16px;
+                "
+                >
+                Total: {{ order.total_price|default:"-" }} {% if order.order_items.first and order.order_items.first.product.get_currency_display %} {{ order.order_items.first.product.get_currency_display }} {% endif %}
+                </div>
+                <div
+                style="
+                    text-align: center;
+                    color: #888;
+                    font-size: 13px;
+                    margin-top: 24px;
+                "
+                >
+                If you have any questions, reply to this email.<br /> &copy; {{ now|date:"Y" }} Your Company Name. All rights reserved.
+                </div>
+            </td>
+            </tr>
+        </table>
+        </td>
+    </tr>
+    </table>
+</body>
+</html>
