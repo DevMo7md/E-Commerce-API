@@ -134,6 +134,52 @@ def password_reset_confirm(request, uidb64, token):
     return Response({'message': 'Password has been reset successfully.'}, status=200)
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def email_reset_request(request):
+    new_email = request.data.get('new_email')
+    user = request.user
+    if not new_email:
+        return Response({'message': 'New email is required.'}, status=400)
+    
+    User = get_user_model()
+    if User.objects.filter(email=new_email).exists():
+        return Response({'message': 'This email is already in use.'}, status=400)
+    
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    frontend_base_url = 'https://localhost:3000/confirm-email-change' # Temporary URL until frontend is ready
+    confirm_link = f'{frontend_base_url}/{uid}/{token}/?new_email={new_email}'
+    subject = 'Update Your Email'
+    html_message = render_to_string('email/email_update.html', {'confirm_link': confirm_link, 'user': user})
+    plain_message = strip_tags(html_message)
+    send_mail(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [new_email], html_message=html_message)
+    return Response({'message': 'If this email exists, the update link has been sent.'}, status=200)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def email_reset_confirm(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return Response({'message': 'Invalid link.'}, status=400)
+    if not default_token_generator.check_token(user, token):
+        return Response({'message': 'Invalid or expired token.'}, status=400)
+    new_email = request.data.get('new_email')
+    if not new_email:
+        return Response({'message': 'Email is required.'}, status=400)
+    
+    if User.objects.filter(email=new_email).exclude(pk=user.pk).exists():
+        return Response({'message': 'This email is already in use.'}, status=400)
+    
+    user.email = new_email
+    user.save()
+    return Response({'message': 'Email updated successfully.'}, status=200)
+
+
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -142,6 +188,20 @@ class ProfileView(APIView):
         profile = get_object_or_404(Profile, user=user)
         serializer = ProfileSerializer(profile, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request):
+        user = request.user
+        profile = get_object_or_404(Profile, user=user)
+        serializer = ProfileSerializer(profile, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Products(APIView):
@@ -227,6 +287,25 @@ class ExtraFeaturesList(APIView):
             return Response({'message': 'Extra feature added successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+
+class ExtraFeatureDetails(APIView):
+    permission_classes = [IsSellerOrSuperUser]
+
+    def put(self, request, product_id, pk):
+        product = get_object_or_404(Product, pk=product_id)
+        extra_feature = get_object_or_404(ExtraFeature, pk=pk, product=product)
+        serializer = ExtraFeatureSerializer(extra_feature, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Extra feature updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, product_id, pk):
+        product = get_object_or_404(Product, pk=product_id)
+        extra_feature = get_object_or_404(ExtraFeature, pk=pk, product=product)
+        extra_feature.delete()
+        return Response({'message': 'Extra feature deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
 
 class RelatedProducts(APIView):
     permission_classes = [AllowAny]
