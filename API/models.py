@@ -40,10 +40,10 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     fullname = models.CharField(max_length=200)
     phone_num = models.CharField(max_length=20)
-    address = models.OneToOneField(Address, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.fullname
+    
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -60,6 +60,7 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField(default=1, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     num_of_sales = models.PositiveIntegerField(default=0)
+    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.is_sale and self.sale_percentage != 0 :
@@ -71,6 +72,15 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+class ExtraFeature(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='extra_features')
+    feature_name = models.CharField(max_length=100)
+    feature_value = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.feature_name}: {self.feature_value} for {self.product.name}"
+
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')

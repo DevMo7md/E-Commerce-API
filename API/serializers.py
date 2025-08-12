@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import (
-    CustomUser, Category, Address, Profile, Product, Review, Cart, CartItem, Order, OrderItem, Purchase
+    CustomUser, Category, Address, Profile, Product, Review, Cart, CartItem, Order, OrderItem, Purchase, ExtraFeature
 )
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -11,12 +11,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password','phone_number','address')
+        fields = ('username', 'email', 'first_name','last_name' ,'password','phone_number','address')
 
     def create(self, validated_data):
         user = User(
             email=validated_data['email'],
             username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
             phone_number=validated_data['phone_number'],
             address=validated_data['address'],
         )
@@ -43,10 +45,17 @@ class AddressSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class ProfileSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(read_only=True)
+    user = CustomUserSerializer(read_only=True)
+    purchases = serializers.SerializerMethodField()
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'fullname', 'phone_num', 'address']
+        fields = ['id', 'user', 'fullname', 'phone_num', 'address', 'purchases']
         read_only_fields = ['id']
+
+    def get_purchases(self, obj):
+        purchases = Purchase.objects.filter(user=obj.user)
+        return PurchaseSerializer(purchases, many=True).data
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
@@ -64,16 +73,23 @@ class ReviewSerializer(serializers.ModelSerializer):
         return value
 
 
+class ExtraFeatureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExtraFeature
+        fields = ['id', 'product', 'feature_name', 'feature_value']
+        read_only_fields = ['id', 'product']
+
 class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
     category_detail = CategorySerializer(read_only=True, source='category')
+    extra_features = ExtraFeatureSerializer(many=True, read_only=True)
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'price', 'photo', 'description', 'is_available', 'quantity', 'is_sale',
-            'sale_percentage','sale_price', 'seller', 'brand', 'created_at', 'category', 'reviews', 'num_of_sales', 'category_detail'
+            'sale_percentage','sale_price', 'seller', 'brand', 'created_at', 'category', 'reviews', 'num_of_sales', 'category_detail', 'extra_features', 'weight'
         ]
-        read_only_fields = ['id', 'created_at', 'sale_price', 'num_of_sales']
+        read_only_fields = ['id', 'created_at', 'sale_price', 'num_of_sales', 'extra_features']
 
     def create(self, validated_data):
         user = self.context["request"].user
@@ -114,6 +130,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, write_only=True)# for POST
     order_items = OrderItemSerializer(many=True, read_only=True)# for GET
+    address = AddressSerializer(read_only=True)
     class Meta:
         model = Order
         fields = [

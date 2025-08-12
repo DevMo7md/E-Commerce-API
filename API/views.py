@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import JSONParser
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import authenticate, login, logout
@@ -20,7 +19,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from django.utils.crypto import get_random_string
 from django.urls import reverse
-
+from django.db.models import Q
 
 # Email verification imports
 from django.core.mail import send_mail, EmailMultiAlternatives
@@ -70,8 +69,8 @@ class RegisterView(APIView):
                 return Response({'error': 'البريد الإلكتروني مستخدم بالفعل.'}, status=400)
             
             token = get_random_string(32)
-            # Store registration data in cache for 5 min
-            cache.set(f"register_{token}", serializer.validated_data, timeout=300)
+            # Store registration data in cache for 10 min
+            cache.set(f"register_{token}", serializer.validated_data, timeout=600)
 
             verification_link = request.build_absolute_uri(
                 reverse('email-verify', kwargs={'token': token})
@@ -135,6 +134,16 @@ def password_reset_confirm(request, uidb64, token):
     return Response({'message': 'Password has been reset successfully.'}, status=200)
 
 
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        profile = get_object_or_404(Profile, user=user)
+        serializer = ProfileSerializer(profile, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class Products(APIView):
     def get_permissions(self):
         if self.request.method == 'POST':
@@ -142,7 +151,25 @@ class Products(APIView):
         return [AllowAny()]
 
     def get(self, request):
+
         products = Product.objects.all().order_by('-num_of_sales')
+        
+        category = request.query_params.get('category')
+        if category:
+            products = products.filter(category__name__icontains=category)
+
+        seller = request.query_params.get('seller')
+        if seller:
+            products = products.filter(seller__username__icontains=seller)
+
+        price_max = request.query_params.get('price_max')
+        if price_max:
+            products = products.filter(Q(price__lte=price_max ) | Q(sale_price__lte=price_max))
+
+        is_sale = request.query_params.get('is_sale')
+        if is_sale:
+            products = products.filter(is_sale=is_sale.lower() == 'true')
+
         paginator = PageNumberPagination()
         paginated_products = paginator.paginate_queryset(products, request)
         serializer = ProductSerializer(paginated_products, many=True)
@@ -178,6 +205,28 @@ class ProductDetails(APIView):
         product = get_object_or_404(Product, pk=pk)
         product.delete()
         return Response({'message':'Product deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+class ExtraFeaturesList(APIView):
+    
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsSellerOrSuperUser()]
+        return [AllowAny()]
+
+    def get(self, request, product_id):
+        product = get_object_or_404(Product, pk=product_id)
+        extra_features = product.extra_features.all()
+        serializer = ExtraFeatureSerializer(extra_features, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, product_id):
+        product = get_object_or_404(Product, pk=product_id)
+        serializer = ExtraFeatureSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(product=product)
+            return Response({'message': 'Extra feature added successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class RelatedProducts(APIView):
     permission_classes = [AllowAny]
@@ -368,7 +417,7 @@ class Order_datails(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
-        if self.request.user == order.user:
+        if self.request.user == order.user or self.request.user.is_staff or self.request.user.is_delivery:
             serializer = OrderSerializer(order, many=False)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
@@ -443,7 +492,7 @@ class PurchaseList(APIView):
     
     def get(self, request):
         user = request.user
-        purchase = Purchase.objects.filter(user=user).order_by('-date_of_purchase')
+        purchase = Purchase.objects.filter(user=user).order_by('-purchase_date')
         paginator = PageNumberPagination()
         pagenated_purchase = paginator.paginate_queryset(purchase, request)
         serializer = PurchaseSerializer(pagenated_purchase, many=True)
