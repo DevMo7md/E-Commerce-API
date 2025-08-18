@@ -92,7 +92,17 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',  # للزوار غير المسجلين
+        'rest_framework.throttling.UserRateThrottle',  # للمستخدمين المسجلين
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/minute',   # الزوار: 5 طلبات/دقيقة
+        'user': '10/minute',  # مستخدمين مسجلين: 10 طلبات/دقيقة
+        'login': '5/minute',  # throttle خاص بالـ login
+    }
 }
+
 
 
 SIMPLE_JWT = {

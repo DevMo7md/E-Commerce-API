@@ -20,6 +20,12 @@ from django.core.cache import cache
 from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.db.models import Q
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Email verification imports
 from django.core.mail import send_mail, EmailMultiAlternatives
@@ -94,6 +100,48 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        id_token_str = request.data.get('id_token')
+        if not id_token_str:
+            return Response({'error': 'id_token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # تحقق من الـ token عند Google
+            idinfo = id_token.verify_oauth2_token(id_token_str, google_requests.Request())
+
+            email = idinfo.get('email')
+            if not email:
+                return Response({'error': 'Email not found in token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            User = get_user_model()
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    'username': email,
+                    'first_name': idinfo.get('given_name', ''),
+                    'last_name': idinfo.get('family_name', ''),
+                    'is_seller': False,
+                    'is_delivery': False,
+                    'phone_number': idinfo.get('phone_number', ''),
+                    'address': idinfo.get('address', '')
+                    }  
+            )
+
+            # اصدار JWT
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'is_new_user': created 
+            })
+
+        except ValueError as e:
+            logger.error(f"Google token verification failed: {str(e)}")
+            return Response({'error': 'Invalid token', 'details': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

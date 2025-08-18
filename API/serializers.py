@@ -29,7 +29,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'phone_number', 'address', 'is_seller']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'phone_number', 'address', 'is_seller', 'is_delivery']
         read_only_fields = ['id']
 
 class CategorySerializer(serializers.ModelSerializer):

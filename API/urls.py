@@ -27,6 +27,7 @@ urlpatterns = [
     path('purchase/', views.PurchaseList.as_view(), name='purchase'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('google-login/', views.GoogleLoginView.as_view(), name='google-login'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('profile-update/', views.ProfileUpdateView.as_view(), name='profile-update'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
