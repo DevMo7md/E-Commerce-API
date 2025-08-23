@@ -21,6 +21,7 @@ An E-Commerce API project built using **Python** and **Django**, with HTML templ
 - Project structure setup with Django.
 - Product management (Create – Update – Delete – View).
 - Shopping cart and checkout system.
+- Security improvements (JWT Auth).
 - User registration & login system with email verification.
 - Advanced dashboard for sellers and customers.
 - Media management for product images via `media/products`.
@@ -34,7 +35,7 @@ An E-Commerce API project built using **Python** and **Django**, with HTML templ
 - integration with delevry company
 - Payment gateway integration (Paymob) (Now : On delevry).
 - Fully documented API using Postman.
-- Security improvements (JWT Auth / CSRF Protection).
+- Security improvements (CSRF Protection).
 - Full project testing and deployment to production.
 
 ## 📂 Project Structure
@@ -79,9 +80,10 @@ E-Commerce-API/
 | ✅ Done    | User authentication with email verification             |
 | ✅ Done    | Advanced dashboard for sellers & customers              |
 | ✅ Done    | Shopping cart and checkout system                       |
+| ✅ Done    | Security enhancements (JWT Auth)                        |
 | ⏳ Pending | Postgress database integration.                         |
 | ⏳ Pending | integration with delevry company                        |
 | ⏳ Pending | Payment gateway integration (Paymob) (Now : On delevry) |
 | ⏳ Pending | API documentation via Swagger/Postman                   |
-| ⏳ Pending | Security enhancements (JWT Auth / CSRF)                 |
+| ⏳ Pending | Security enhancements (CSRF)                            |
 | ⏳ Pending | Full testing and production deployment                  |
