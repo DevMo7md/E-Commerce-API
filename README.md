@@ -1,7 +1,7 @@
 # 🛒 E-Commerce API
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10-blue?logo=python" alt="Python">
+  <img src="https://img.shields.io/badge/Python-3.11-blue?logo=python" alt="Python">
   <img src="https://img.shields.io/badge/Django-5.0-green?logo=django" alt="Django">
   <img src="https://img.shields.io/badge/SQLite-Database-lightgrey?logo=sqlite" alt="SQLite">
   <!-- <img src="https://img.shields.io/badge/PostgreSQL-Database-blue?logo=postgresql" alt="PostgreSQL"> -->

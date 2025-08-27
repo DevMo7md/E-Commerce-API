@@ -68,7 +68,17 @@ class Product(models.Model):
             self.sale_price = self.price * (Decimal('1') - discount)
         else:
             self.sale_price = None
+            
         super().save(*args, **kwargs)
+
+        self.refresh_from_db(fields=["quantity"])
+
+        if self.quantity <= 0:
+            self.is_available = False
+        else:
+            self.is_available = True
+
+        super().save(update_fields=["is_available"])
 
     def __str__(self):
         return self.name
@@ -134,6 +144,7 @@ class Order(models.Model):
     shipping_status = models.CharField(max_length=50, choices=ShippingStatus.choices, default=ShippingStatus.ON_DELIVERED)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     total_items = models.PositiveIntegerField(null=True, blank=True)
+    total_weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 
     def __str__(self):

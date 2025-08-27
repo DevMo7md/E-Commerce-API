@@ -277,6 +277,10 @@ class Products(APIView):
         is_sale = request.query_params.get('is_sale')
         if is_sale:
             products = products.filter(is_sale=is_sale.lower() == 'true')
+            
+        is_available = request.query_params.get('is_available')
+        if is_available:
+            products = products.filter(is_available=is_available.lower() == 'true')
 
         paginator = PageNumberPagination()
         paginated_products = paginator.paginate_queryset(products, request)
@@ -528,6 +532,21 @@ class Orders(APIView):
     def get(self, request):
         if request.user.is_staff:
             orders = Order.objects.all().order_by('date_of_order')
+            customer_filter = request.query_params.get('customer')
+            if customer_filter:
+                orders = orders.filter(Q(user__username__icontains=customer_filter)| Q(user__email__icontains=customer_filter)| Q(user__first_name__icontains=customer_filter)| Q(user__last_name__icontains=customer_filter))
+            status_filter = request.query_params.get('status')
+            if status_filter:
+                orders = orders.filter(status=status_filter)
+            payment_status_filter = request.query_params.get('payment_status')
+            if payment_status_filter:
+                orders = orders.filter(payment_status=payment_status_filter)
+            date_from = request.query_params.get('date_from')
+            if date_from:
+                orders = orders.filter(date_of_order__date__gte=date_from)
+            date_to = request.query_params.get('date_to')
+            if date_to:
+                orders = orders.filter(date_of_order__date__lte=date_to)
         elif request.user.is_delivery:
             status_params = request.query_params.get('status', 'PENDING')
             orders = Order.objects.filter(status=status_params).order_by('date_of_order')
@@ -536,7 +555,16 @@ class Orders(APIView):
         pagenator = PageNumberPagination()
         pagenated_orders = pagenator.paginate_queryset(orders, request)
         serializer = OrderSerializer(pagenated_orders, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        response_data = {
+            "orders": serializer.data,
+        }
+        if request.user.is_staff :
+            response_data["total_orders"] = orders.count()
+            total_amount = orders.aggregate(total_amount=models.Sum('total_price'))['total_amount'] or 0
+            response_data["total_amount"] = total_amount
+
+        return Response(response_data, status=status.HTTP_200_OK)
     
 
 class Order_datails(APIView):
@@ -559,6 +587,14 @@ def order_email(order):
     email.attach_alternative(html_message, "text/html")
     email.send()
 
+def order_admin_email(order):
+    subject = 'New Order'
+    html_message = render_to_string('email/new_order.html', {'order': order})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, order.user.email, [settings.DEFAULT_FROM_EMAIL])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
 class OrderCreate(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -567,6 +603,8 @@ class OrderCreate(APIView):
         if serializer.is_valid():
             order = serializer.save()
             order_email(order)
+            order_admin_email(order)
+
             return Response({"message":"Order is created successfully"}, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -625,3 +663,38 @@ class PurchaseList(APIView):
         serializer = PurchaseSerializer(pagenated_purchase, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class AddressList(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        addresses = Address.objects.filter(user=user)
+        serializer = AddressSerializer(addresses, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        user = request.user
+        serializer = AddressSerializer(data=request.data, context={'request':request})
+        if serializer.is_valid():
+            serializer.save(user=user)
+            return Response({'message':'Address created successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class AddressDetails(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        user = request.user
+        address = get_object_or_404(Address, pk=pk, user=user)
+        serializer = AddressSerializer(address, data=request.data, context={'request':request}, partial=True) # Allow partial updates
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'Address updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        user = request.user
+        address = get_object_or_404(Address, pk=pk, user=user)
+        address.delete()
+        return Response({'message':'Address deleted successfully'}, status=status.HTTP_204_NO_CONTENT)

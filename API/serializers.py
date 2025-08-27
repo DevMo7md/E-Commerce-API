@@ -5,7 +5,9 @@ from .models import (
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.shortcuts import get_object_or_404
+from decimal import Decimal
 
+from django.db.models import F
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -39,10 +41,21 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class AddressSerializer(serializers.ModelSerializer):
+    government = serializers.CharField(required=True)
+    city = serializers.CharField(required=True)
+    street = serializers.CharField(required=True)
+    zip_code = serializers.CharField(required=True)
     class Meta:
         model = Address
         fields = ['id', 'user', 'government', 'city', 'street', 'zip_code']
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'user']
+
+    def validate(self, data):
+        user = self.context['request'].user
+        if not self.instance and Address.objects.filter(user=user).count() >= 3:
+            raise serializers.ValidationError("A user can have only 3 addresses.")
+        return data
+        
 
 class ProfileSerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=True)
@@ -135,9 +148,9 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'id', 'user', 'address', 'date_of_order', 'payment_status','status', 
-            'total_price', 'total_items', 'order_items', 'items', 'shipping_status'
+            'total_price', 'total_items', 'order_items', 'items', 'shipping_status', 'total_weight'
         ]
-        read_only_fields = ['id', 'date_of_order', 'total_items', 'total_price', 'user' , 'payment_status','status']
+        read_only_fields = ['id', 'date_of_order', 'total_items', 'total_price', 'user' , 'payment_status','status', 'total_weight']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -148,20 +161,36 @@ class OrderSerializer(serializers.ModelSerializer):
         items_data = self.context['request'].data.get('items', [])
         total_price = 0
         total_items = 0
+        total_weight = Decimal('0.0')
+        order_items = []
 
         for item_data in items_data:
             product = get_object_or_404(Product, id=item_data['product_id'])
             quantity = item_data['quantity']
-            OrderItem.objects.create(order=order, product=product, quantity=quantity)
+
+            if product.quantity < quantity:
+                raise serializers.ValidationError(f"Not enough stock for product {product.name}. Available: {product.quantity}, Requested: {quantity}")
+            
+            total_weight += Decimal(str(product.weight)) * Decimal(str(quantity))
+
+            order_items.append(OrderItem(order=order, product=product, quantity=quantity))
+
+            product.quantity = F('quantity') - quantity
+            product.save()
+            product.refresh_from_db()
 
             total_items += quantity
+
             if product.is_sale and product.sale_price:
                 total_price += quantity * product.sale_price
             else:
                 total_price += quantity * product.price
 
+        OrderItem.objects.bulk_create(order_items)
+
         order.total_items = total_items
         order.total_price = total_price
+        order.total_weight = total_weight
         if order.shipping_status == 'ON_DELIVERED':
             order.payment_status = 'PAID'
         order.save()
