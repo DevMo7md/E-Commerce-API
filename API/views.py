@@ -698,3 +698,122 @@ class AddressDetails(APIView):
         address = get_object_or_404(Address, pk=pk, user=user)
         address.delete()
         return Response({'message':'Address deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+def seller_app_admin_email(application):
+    subject = 'New application'
+    html_message = render_to_string('email/new_application.html', {'application': application})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, application.user.email, [settings.DEFAULT_FROM_EMAIL])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
+class SellerApp(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        if SellersApplication.objects.filter(user=user, request_status__in=['PENDING', 'APPROVED']).exists():
+            return Response({'message':'You already have an application'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = SellersApplicationSerializer(data=request.data, context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            seller_app_admin_email(serializer.instance) #--> serializer.instance is the application object
+            return Response({'message':'Application submitted successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request):
+        user = request.user
+
+        if user.is_staff:
+            applications = SellersApplication.objects.all().order_by('-application_date')
+            status_filter = request.query_params.get('status')
+            if status_filter:
+                applications = applications.filter(request_status=status_filter)
+            seller_filter = request.query_params.get('seller')
+            if seller_filter:
+                applications = applications.filter(Q(user__username__icontains=seller_filter)| Q(user__email__icontains=seller_filter)| Q(user__first_name__icontains=seller_filter)| Q(user__last_name__icontains=seller_filter))
+            paginator = PageNumberPagination()
+            paginated_applications = paginator.paginate_queryset(applications, request)
+            serializer = SellersApplicationSerializer(paginated_applications, many=True)
+            response_data = {
+                "applications": serializer.data,
+                "total_applications": applications.count()
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        
+        application = SellersApplication.objects.filter(user=user).order_by('-application_date')
+        serializer = SellersApplicationSerializer(application, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+def seller_app_confimation_email(application):
+    subject = 'Application Approved'
+    html_message = render_to_string('email/app_approved.html', {'application': application})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
+def seller_app_rejection_email(application):
+    subject = 'Application Rejected'
+    html_message = render_to_string('email/app_regection.html', {'application': application})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
+
+class SellerAppDetails(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        application = get_object_or_404(SellersApplication, pk=pk)
+        if request.user == application.user or request.user.is_staff:
+            serializer = SellersApplicationSerializer(application, many=False)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
+    
+    def put(self, request, pk):
+        application = get_object_or_404(SellersApplication, pk=pk)
+        if request.user != application.user:
+            return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
+        
+        if application.request_status in ['APPROVED', 'REJECTED']:
+            return Response({'detail': 'You cannot update an application that has already been reviewed'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = SellersApplicationSerializer(application, data=request.data, context={'request':request}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'detail': 'Application updated successfully','application': serializer.data}, status=status.HTTP_200_OK) # (to front) Return updated application data without ID or any sensitive info
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        application = get_object_or_404(SellersApplication, pk=pk)
+        if request.user != application.user and not request.user.is_staff:
+            return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
+        
+        if application.request_status in ['APPROVED', 'REJECTED'] and not request.user.is_staff:
+            return Response({'detail': 'You cannot delete an application that has already been reviewed'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        application.delete()
+        return Response({'detail':'Application deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class SellerApproveReject(APIView):
+    permission_classes = [IsAdminUser]
+
+    def put(self, request, pk):
+        application = get_object_or_404(SellersApplication, pk=pk)
+        serializer = SellerConfirmationSerializer(application, data=request.data, context={'request':request}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            if serializer.instance.request_status == 'APPROVED':
+                seller_app_confimation_email(serializer.instance)
+            elif serializer.instance.request_status == 'REJECTED':
+                seller_app_rejection_email(serializer.instance)
+            else :
+                pass
+            return Response({'detail': 'Application status updated successfully','application': serializer.data}, status=status.HTTP_200_OK) # (to front) Return updated application data without ID or any sensitive info
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

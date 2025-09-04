@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تم قبول طلبك</title>
+  <style>
+    body { font-family: Tahoma, Arial, sans-serif; direction: rtl; }
+    .container { max-width: 600px; margin: auto; padding: 20px; background: #f9f9f9; border-radius: 8px; }
+    .header { background: #4CAF50; color: white; padding: 10px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { padding: 20px; line-height: 1.8; }
+    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #777; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>🎉 تهانينا!</h2>
+    </div>
+    <div class="content">
+      <p>مرحباً <strong>{{ application.user.username }}</strong>،</p>
+      <p>نود إعلامك أنه قد تم <strong>قبول طلبك</strong> بنجاح.</p>
+      <p>يمكنك الآن الدخول إلى حسابك والبدء في استخدام مميزات البائع.</p>
+      <p>نتمنى لك تجربة موفقة معنا 🚀</p>
+    </div>
+    <div class="footer">
+      &copy; {{ application.application_date|date:"Y" }} منصتنا - جميع الحقوق محفوظة
+    </div>
+  </div>
+</body>
+</html>

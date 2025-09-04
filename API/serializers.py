@@ -1,10 +1,8 @@
 from rest_framework import serializers
-from .models import (
-    CustomUser, Category, Address, Profile, Product, Review, Cart, CartItem, Order, OrderItem, Purchase, ExtraFeature
-)
+from .models import *
 from django.contrib.auth import get_user_model
 User = get_user_model()
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from decimal import Decimal
 
 from django.db.models import F
@@ -211,3 +209,79 @@ class PurchaseSerializer(serializers.ModelSerializer):
         model = Purchase
         fields = ['id', 'user', 'products', 'purchase_date']
         read_only_fields = ['id', 'purchase_date']
+
+
+class SellersApplicationSerializer(serializers.ModelSerializer):
+
+    documents = serializers.ListField(
+        child=serializers.FileField(), write_only=True, required=False
+    ) # For uploading new documents
+    uploaded_documents = serializers.SerializerMethodField(read_only=True) # To display existing documents
+    class Meta:
+        model = SellersApplication
+        fields = ['id', 'user', 'full_name', 'business_name', 'address', 'phone_number', 'description', 'request_status', 'application_date', 'documents', 'uploaded_documents', 'rejection_reason']
+        read_only_fields = ['id', 'user', 'request_status', 'application_date', 'rejection_reason']
+        
+    def get_uploaded_documents(self, obj):
+        return [doc.document.url for doc in obj.documents.all()]
+    
+    def validate_documents(self, value):
+        if len(value) > 3:
+            raise serializers.ValidationError("You can upload a maximum of 3 documents.")
+        return value
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        documents = validated_data.pop('documents', [])
+
+        applications = SellersApplication.objects.filter(user=user, request_status__in=['PENDING', 'APPROVED'])
+        if applications.exists():
+            raise serializers.ValidationError("You have already applied to be a seller.")
+        
+        application = SellersApplication.objects.create(user=user, **validated_data)
+
+        for document in documents:
+            SellerDocuments.objects.create(application=application, document=document)
+
+        return application
+    
+    def update(self, instance, validated_data):
+        documents = validated_data.pop('documents', [])
+
+        # تحديث الحقول العادية
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # التعامل مع المستندات
+        existing_docs_count = instance.documents.count()
+        if existing_docs_count + len(documents) > 3:
+            raise serializers.ValidationError("You can upload a maximum of 3 documents per application.")
+
+        # إضافة المستندات الجديدة
+        for doc in documents:
+            SellerDocuments.objects.create(application=instance, document=doc)
+
+        return instance
+
+
+class SellerConfirmationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SellersApplication
+        fields = ['request_status', 'rejection_reason']
+        read_only_fields = []
+
+    
+    def update(self, instance, validated_data):
+
+        previous_status = instance.request_status
+        instance.request_status = validated_data.get('request_status', instance.request_status)
+        instance.rejection_reason = validated_data.get('rejection_reason', instance.rejection_reason)
+        instance.save()
+
+        if previous_status != instance.request_status and instance.request_status == 'APPROVED':
+            user = instance.user
+            user.is_seller = True
+            user.save()
+        return instance
+    
