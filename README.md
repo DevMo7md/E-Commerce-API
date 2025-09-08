@@ -28,6 +28,9 @@ An E-Commerce API project built using **Python** and **Django**, with HTML templ
 - Email templates added under `templates/email`.
 - SQLite database integration.
 - Static files support via `static` folder.
+- Add Sellers Applications System.
+- Add Coupons and Ocassion System.
+
 
 ### ⏳ Pending
 
@@ -81,6 +84,8 @@ E-Commerce-API/
 | ✅ Done    | Advanced dashboard for sellers & customers              |
 | ✅ Done    | Shopping cart and checkout system                       |
 | ✅ Done    | Security enhancements (JWT Auth)                        |
+| ✅ Done    | Add Sellers Applications System.                      |
+| ✅ Done    | Add Coupons and Ocassion System.                        |
 | ⏳ Pending | Postgress database integration.                         |
 | ⏳ Pending | integration with delevry company                        |
 | ⏳ Pending | Payment gateway integration (Paymob) (Now : On delevry) |
