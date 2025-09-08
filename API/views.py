@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
+from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -44,6 +45,9 @@ class IsSellerOrSuperUser(BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and (request.user.is_superuser or request.user.is_seller)
 
+class IsSuperUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.is_superuser
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -235,8 +239,49 @@ class ProfileView(APIView):
         user = request.user
         profile = get_object_or_404(Profile, user=user)
         serializer = ProfileSerializer(profile, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+        # Query params to control which sections to include
+        include_addresses = request.query_params.get('include_addresses', 'true').lower() == 'true'
+        include_reviews = request.query_params.get('include_reviews', 'true').lower() == 'true'
+        include_purchases = request.query_params.get('include_purchases', 'true').lower() == 'true'
+
+        response = {
+            'profile': serializer.data,
+        }
+
+        # Addresses
+        if include_addresses:
+            response['addresses'] = AddressSerializer(user.addresses.all(), many=True).data
+
+        # Reviews (paginated)
+        if include_reviews:
+            reviews_qs = user.reviews.all().order_by('-created_at')
+            reviews_paginator = PageNumberPagination()
+            reviews_paginator.page_size = int(request.query_params.get('reviews_page_size', 10))
+            reviews_page = reviews_paginator.paginate_queryset(reviews_qs, request, view=self)
+            response['reviews'] = ReviewSerializer(reviews_page, many=True).data
+            response['reviews_pagination'] = {
+                'count': reviews_qs.count(),
+                'next': reviews_paginator.get_next_link(),
+                'previous': reviews_paginator.get_previous_link(),
+            }
+            response['reviews_count'] = reviews_qs.count()
+
+        # Purchases (paginated)
+        if include_purchases:
+            purchases_qs = user.purchases.all().order_by('-purchase_date')
+            purchases_paginator = PageNumberPagination()
+            purchases_paginator.page_size = int(request.query_params.get('purchases_page_size', 10))
+            purchases_page = purchases_paginator.paginate_queryset(purchases_qs, request, view=self)
+            response['purchases'] = PurchaseSerializer(purchases_page, many=True).data
+            response['purchases_pagination'] = {
+                'count': purchases_qs.count(),
+                'next': purchases_paginator.get_next_link(),
+                'previous': purchases_paginator.get_previous_link(),
+            }
+            response['purchases_count'] = purchases_qs.count()
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 
@@ -579,17 +624,17 @@ class Order_datails(APIView):
             return Response({'messaage':'This page is not allowed for you'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-def order_email(order):
+def order_email(order, coupon_discount):
     subject = 'Order Confirmation'
-    html_message = render_to_string('email/order_confirmation.html', {'order': order})
+    html_message = render_to_string('email/order_confirmation.html', {'order': order, 'coupon_discount': coupon_discount})
     plain_message = strip_tags(html_message)
     email = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [order.user.email])
     email.attach_alternative(html_message, "text/html")
     email.send()
 
-def order_admin_email(order):
+def order_admin_email(order, coupon_discount):
     subject = 'New Order'
-    html_message = render_to_string('email/new_order.html', {'order': order})
+    html_message = render_to_string('email/new_order.html', {'order': order , 'coupon_discount': coupon_discount})
     plain_message = strip_tags(html_message)
     email = EmailMultiAlternatives(subject, plain_message, order.user.email, [settings.DEFAULT_FROM_EMAIL])
     email.attach_alternative(html_message, "text/html")
@@ -602,8 +647,13 @@ class OrderCreate(APIView):
         serializer = OrderSerializer(data=request.data, context={'request':request})
         if serializer.is_valid():
             order = serializer.save()
-            order_email(order)
-            order_admin_email(order)
+            coupon = get_object_or_404(Coupon, code=order.coupon_code) if order.coupon_code else None
+            coupon_discount = coupon.discount_percentage if coupon else 0
+            if coupon:
+                coupon.times_used += 1
+                coupon.save()
+            order_email(order, coupon_discount)
+            order_admin_email(order, coupon_discount)
 
             return Response({"message":"Order is created successfully"}, status=status.HTTP_201_CREATED)
         
@@ -817,3 +867,282 @@ class SellerApproveReject(APIView):
             return Response({'detail': 'Application status updated successfully','application': serializer.data}, status=status.HTTP_200_OK) # (to front) Return updated application data without ID or any sensitive info
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CouponList(APIView):
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsSuperUser()]
+        return [IsSellerOrSuperUser()]
+
+    def get(self, request):
+        if request.user.is_superuser:
+            coupons = Coupon.objects.all().order_by('-valid_to')
+        else:
+            coupons = Coupon.objects.filter(seller=request.user).order_by('-valid_to')
+
+        filter_code = request.query_params.get('code')
+        if filter_code:
+            coupons = coupons.filter(code__icontains=filter_code)
+
+        filter_seller = request.query_params.get('seller')
+        if filter_seller:
+            coupons = coupons.filter(Q(seller__username__icontains=filter_seller)| Q(seller__email__icontains=filter_seller)| Q(seller__first_name__icontains=filter_seller)| Q(seller__last_name__icontains=filter_seller))
+
+        filter_active = request.query_params.get('is_active')
+        if filter_active:
+            now = timezone.now()
+            if filter_active.lower() == 'true':
+                coupons = coupons.filter(valid_from__lte=now, valid_to__gte=now, manually_disabled=False)
+            elif filter_active.lower() == 'false':
+                coupons = coupons.exclude(valid_from__lte=now, valid_to__gte=now, manually_disabled=False)
+
+        filter_valid_from = request.query_params.get('valid_from')
+        if filter_valid_from:
+            coupons = coupons.filter(valid_from__date__gte=filter_valid_from)
+        filter_valid_to = request.query_params.get('valid_to')  
+        if filter_valid_to:
+            coupons = coupons.filter(valid_to__date__lte=filter_valid_to)
+        
+        paginator = PageNumberPagination()
+        paginated_coupons = paginator.paginate_queryset(coupons, request)
+        serializer = CouponSerializer(paginated_coupons, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        serializer = CouponSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response({'message':'Coupon created successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class CouponDetails(APIView):
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsSuperUser()]
+        return [IsSellerOrSuperUser()]
+
+    def get(self, request, pk):
+        coupon = get_object_or_404(Coupon, pk=pk)
+        if coupon.seller and request.user != coupon.seller and not request.user.is_superuser:
+            return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = CouponSerializer(coupon, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        coupon = get_object_or_404(Coupon, pk=pk)
+        serializer = CouponSerializer(coupon, data=request.data, partial=True)
+        if serializer.is_valid():
+            new_coupon = serializer.save()
+            response = {
+                'message': 'Coupon updated successfully',
+                'updated_coupon': CouponSerializer(new_coupon).data,
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        coupon = get_object_or_404(Coupon, pk=pk)
+        coupon_data = CouponSerializer(coupon).data
+        coupon.delete()
+        response = {
+            'message': 'Coupon deleted successfully',
+            'deleted_coupon': coupon_data,
+        }
+        return Response(response, status=status.HTTP_204_NO_CONTENT)
+
+
+class OccasionList(APIView):
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsSuperUser()]
+        return [AllowAny()]
+
+    def get(self, request):
+        occasions = Occasion.objects.all().order_by('-start_date')
+        filter_name = request.query_params.get('name')
+        if filter_name:
+            occasions = occasions.filter(name__icontains=filter_name)
+        filter_description = request.query_params.get('description')
+        if filter_description:
+            occasions = occasions.filter(description__icontains=filter_description)
+        filter_active = request.query_params.get('is_active')
+        if filter_active:
+            now = timezone.now()
+            if filter_active.lower() == 'true':
+                occasions = occasions.filter(start_date__lte=now, end_date__gte=now, manually_disabled=False)
+            elif filter_active.lower() == 'false':
+                occasions = occasions.exclude(start_date__lte=now, end_date__gte=now, manually_disabled=False)
+        filter_start_date = request.query_params.get('start_date')
+        if filter_start_date:
+            occasions = occasions.filter(start_date__date__gte=filter_start_date)
+        filter_end_date = request.query_params.get('end_date')
+        if filter_end_date:
+            occasions = occasions.filter(end_date__date__lte=filter_end_date)
+        filter_seller = request.query_params.get('seller')
+        if filter_seller:
+            occasions = occasions.filter(Q(seller__username__icontains=filter_seller)| Q(seller__email__icontains=filter_seller)| Q(created_by__first_name__icontains=filter_seller)| Q(created_by__last_name__icontains=filter_seller))
+        paginator = PageNumberPagination()
+        paginated_occasions = paginator.paginate_queryset(occasions, request)
+        serializer = OccasionSerializer(paginated_occasions, many=True)
+        return paginator.get_paginated_response(serializer.data) # should apply to all paginated responses --> Use paginator's response method to include pagination metadata
+    
+    def post(self, request):
+        serializer = OccasionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response({'message':'Occasion created successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OccasionDetails(APIView):
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsSuperUser()]
+        return [AllowAny()]
+
+    def get(self, request, pk):
+        occasion = get_object_or_404(Occasion, pk=pk)
+        serializer = OccasionSerializer(occasion, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def put(self, request, pk):
+        occasion = get_object_or_404(Occasion, pk=pk)
+        serializer = OccasionSerializer(occasion, data=request.data, partial=True)
+        if serializer.is_valid():
+            new_occasion = serializer.save()
+            response = {
+                'message': 'Occasion updated successfully',
+                'updated_occasion': OccasionSerializer(new_occasion).data,
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        occasion = get_object_or_404(Occasion, pk=pk)
+        occasion_data = OccasionSerializer(occasion).data
+        occasion.delete()
+        response = {
+            'message': 'Occasion deleted successfully',
+            'deleted_occasion': occasion_data,
+        }
+        return Response(response, status=status.HTTP_204_NO_CONTENT)
+
+class UsersList(APIView):
+    permission_classes = [IsSuperUser]
+
+    def get(self, request):
+
+        users = CustomUser.objects.all().order_by('date_joined')
+        username_filter = request.query_params.get('username')
+        if username_filter:
+            users = users.filter(username__icontains=username_filter)
+        email_filter = request.query_params.get('email')
+        if email_filter:
+            users = users.filter(email__icontains=email_filter)
+        is_active_filter = request.query_params.get('is_active')
+        if is_active_filter:
+            users = users.filter(is_active=is_active_filter.lower() == 'true')
+        is_staff_filter = request.query_params.get('is_staff')
+        if is_staff_filter:
+            users = users.filter(is_staff=is_staff_filter.lower() == 'true')
+        is_seller_filter = request.query_params.get('is_seller')
+        if is_seller_filter:
+            users = users.filter(is_seller=is_seller_filter.lower() == 'true')
+        
+        paginator = PageNumberPagination()
+        paginated_users = paginator.paginate_queryset(users, request)
+        serializer = CustomUserSerializer(paginated_users, many=True)
+        
+        response_data = {
+            "users": serializer.data,
+            "total_users": users.count()
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+class UserDetails(APIView):
+    permission_classes = [IsSuperUser]
+
+    def get(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        serializer = CustomUserSerializer(user, many=False)
+
+        # Query params to control which sections to include
+        include_products = request.query_params.get('include_products', 'true').lower() == 'true'
+        include_coupons = request.query_params.get('include_coupons', 'true').lower() == 'true'
+        include_occasions = request.query_params.get('include_occasions', 'true').lower() == 'true'
+        include_orders = request.query_params.get('include_orders', 'true').lower() == 'true'
+        include_purchases = request.query_params.get('include_purchases', 'true').lower() == 'true'
+        include_addresses = request.query_params.get('include_addresses', 'true').lower() == 'true'
+
+        response = {
+            'user': serializer.data,
+        }
+
+        # Seller data
+        if user.is_seller:
+            if include_products:
+                products_qs = user.products.all().select_related('category').prefetch_related('extra_features')
+                products_paginator = PageNumberPagination()
+                products_paginator.page_size = int(request.query_params.get('products_page_size', 10))
+                products_page = products_paginator.paginate_queryset(products_qs, request, view=self)
+                response['products'] = ProductSerializer(products_page, many=True).data
+                response['products_pagination'] = {
+                    'count': products_qs.count(),
+                    'next': products_paginator.get_next_link(),
+                    'previous': products_paginator.get_previous_link(),
+                }
+            if include_coupons:
+                coupons_qs = user.coupons.all()
+                coupons_paginator = PageNumberPagination()
+                coupons_paginator.page_size = int(request.query_params.get('coupons_page_size', 10))
+                coupons_page = coupons_paginator.paginate_queryset(coupons_qs, request, view=self)
+                response['coupons'] = CouponSerializer(coupons_page, many=True).data
+                response['coupons_pagination'] = {
+                    'count': coupons_qs.count(),
+                    'next': coupons_paginator.get_next_link(),
+                    'previous': coupons_paginator.get_previous_link(),
+                }
+            if include_occasions:
+                occasions_qs = user.occasions.all()
+                occasions_paginator = PageNumberPagination()
+                occasions_paginator.page_size = int(request.query_params.get('occasions_page_size', 10))
+                occasions_page = occasions_paginator.paginate_queryset(occasions_qs, request, view=self)
+                response['occasions'] = OccasionSerializer(occasions_page, many=True).data
+                response['occasions_pagination'] = {
+                    'count': occasions_qs.count(),
+                    'next': occasions_paginator.get_next_link(),
+                    'previous': occasions_paginator.get_previous_link(),
+                }
+            response['seller_address'] = getattr(getattr(user, 'seller_applications', None), 'address', None)
+        else:
+            if include_orders:
+                orders_qs = user.orders.all().select_related('address').prefetch_related('order_items__product')
+                orders_paginator = PageNumberPagination()
+                orders_paginator.page_size = int(request.query_params.get('orders_page_size', 10))
+                orders_page = orders_paginator.paginate_queryset(orders_qs, request, view=self)
+                response['user_orders'] = OrderSerializer(orders_page, many=True).data
+                response['user_orders_pagination'] = {
+                    'count': orders_qs.count(),
+                    'next': orders_paginator.get_next_link(),
+                    'previous': orders_paginator.get_previous_link(),
+                }
+            if include_purchases:
+                purchases_qs = user.purchases.all().prefetch_related('products')
+                purchases_paginator = PageNumberPagination()
+                purchases_paginator.page_size = int(request.query_params.get('purchases_page_size', 10))
+                purchases_page = purchases_paginator.paginate_queryset(purchases_qs, request, view=self)
+                response['user_purchases'] = PurchaseSerializer(purchases_page, many=True).data
+                response['user_purchases_pagination'] = {
+                    'count': purchases_qs.count(),
+                    'next': purchases_paginator.get_next_link(),
+                    'previous': purchases_paginator.get_previous_link(),
+                }
+            if include_addresses:
+                response['user_addresses'] = AddressSerializer(user.addresses.all(), many=True).data
+            response['user_reviews_count'] = user.reviews.count()
+
+        return Response(response, status=status.HTTP_200_OK)

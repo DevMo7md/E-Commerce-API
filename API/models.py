@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.conf import settings
 import uuid
 from decimal import Decimal
-
+from django.utils import timezone
 class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=100, unique=True)
@@ -94,7 +94,7 @@ class ExtraFeature(models.Model):
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
     rate = models.PositiveSmallIntegerField()
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -136,12 +136,13 @@ class ShippingStatus(models.TextChoices):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
     date_of_order = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(max_length=50, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
     status = models.CharField(max_length=50, choices=OrderStatus.choices, default=OrderStatus.PENDING)
     shipping_status = models.CharField(max_length=50, choices=ShippingStatus.choices, default=ShippingStatus.ON_DELIVERED)
+    coupon_code = models.CharField(max_length=50, null=True, blank=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     total_items = models.PositiveIntegerField(null=True, blank=True)
     total_weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -159,7 +160,7 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.product.name}"
 
 class Purchase(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='purchases')
     products = models.ManyToManyField(Product)
     purchase_date = models.DateTimeField(auto_now_add=True)
 
@@ -173,7 +174,7 @@ class SellerAppStatus(models.TextChoices):
     APPROVED = 'APPROVED', 'مقبول'
 
 class SellersApplication(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='seller_applications')
     full_name = models.CharField(max_length=200)
     business_name = models.CharField(max_length=200, null=True, blank=True)
     phone_number = models.CharField(max_length=20)
@@ -194,3 +195,44 @@ class SellerDocuments(models.Model):
 
     def __str__(self):
         return f"Document for {self.application.user.email} uploaded at {self.uploaded_at}" 
+    
+
+class Coupon(models.Model):
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='coupons', null=True, blank=True)
+    code = models.CharField(max_length=50, unique=True)
+    discount_percentage = models.PositiveIntegerField()
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    manually_disabled = models.BooleanField(default=False)
+    limit_per_user = models.PositiveIntegerField(default=1)
+    times_used = models.PositiveIntegerField(default=0)
+    limit = models.PositiveIntegerField(default=50)
+
+    def __str__(self):
+        return self.code
+    
+    @property
+    def is_active(self):
+        now = timezone.now()
+        return (self.valid_from <= now <= self.valid_to) and not self.manually_disabled and self.times_used < self.limit
+    
+    
+class Occasion(models.Model):
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='occasions', null=True, blank=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    manually_disabled = models.BooleanField(default=False)
+
+
+    def __str__(self):
+        return self.name
+    
+    @property
+    def is_active(self):
+        now = timezone.now()
+        return (self.start_date <= now <= self.end_date) and not self.manually_disabled
+    

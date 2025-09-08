@@ -71,7 +71,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ['id', 'product', 'user', 'rate', 'comment', 'created_at']
+        fields = ['id', 'product', 'user', 'rate', 'comment', 'created_at'
+        ]
         read_only_fields = ['id', 'user', 'created_at']
 
     def create(self, validated_data):
@@ -127,7 +128,8 @@ class CartSerializer(serializers.ModelSerializer):
     cart_items = CartItemSerializer(many=True, read_only=True)
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'products', 'cart_items']
+        fields = ['id', 'user', 'products', 'cart_items'
+        ]
         read_only_fields = ['id']
 
 
@@ -146,56 +148,105 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'id', 'user', 'address', 'date_of_order', 'payment_status','status', 
-            'total_price', 'total_items', 'order_items', 'items', 'shipping_status', 'total_weight'
+            'total_price', 'total_items', 'order_items', 'items', 'shipping_status', 'total_weight', 'coupon_code'
         ]
-        read_only_fields = ['id', 'date_of_order', 'total_items', 'total_price', 'user' , 'payment_status','status', 'total_weight']
+        read_only_fields = ['id', 'date_of_order', 'total_items', 'total_price', 'user' , 'payment_status','status', 'total_weight', 'shipping_status', 'coupon_code']
 
     def create(self, validated_data):
         user = self.context['request'].user
         address = get_object_or_404(Address, user=user)
 
-        order = Order.objects.create(user=user, address=address)
-
         items_data = self.context['request'].data.get('items', [])
-        total_price = 0
+        coupon_code = self.context['request'].data.get('coupon_code')
+        total_price = Decimal('0.0')
         total_items = 0
         total_weight = Decimal('0.0')
-        order_items = []
+        order_items_data = []
 
+        products_price_list = []  # [(product, quantity, price_per_unit)]
+
+        # Validate stock and prepare order items
         for item_data in items_data:
             product = get_object_or_404(Product, id=item_data['product_id'])
             quantity = item_data['quantity']
 
             if product.quantity < quantity:
-                raise serializers.ValidationError(f"Not enough stock for product {product.name}. Available: {product.quantity}, Requested: {quantity}")
-            
+                raise serializers.ValidationError(
+                    f"Not enough stock for product {product.name}. Available: {product.quantity}, Requested: {quantity}"
+                )
+
             total_weight += Decimal(str(product.weight)) * Decimal(str(quantity))
+            order_items_data.append({'product': product, 'quantity': quantity})
 
+            total_items += quantity
+
+            price_per_unit = product.sale_price if product.is_sale and product.sale_price else product.price
+            products_price_list.append((product, quantity, price_per_unit))
+
+        # Coupon logic: apply discount if coupon_code is provided and valid
+        applied_coupon_code = None
+        if coupon_code:
+            try:
+                coupon = Coupon.objects.get(code=coupon_code, manually_disabled=False)
+                now = timezone.now()
+                if not (coupon.valid_from <= now <= coupon.valid_to):
+                    raise serializers.ValidationError("Coupon is expired or not yet valid.")
+
+                # Check limit_per_user
+                user_coupon_count = Order.objects.filter(user=user, coupon_code=coupon.code).count()
+                if user_coupon_count >= coupon.limit_per_user:
+                    raise serializers.ValidationError("You have reached the usage limit for this coupon.")
+
+                discount = Decimal(coupon.discount_percentage) / Decimal('100')
+                applied_coupon_code = coupon.code
+
+                if coupon.seller:
+                    # Discount only on products from this seller
+                    for product, quantity, price_per_unit in products_price_list:
+                        if product.seller == coupon.seller:
+                            total_price += quantity * price_per_unit * (Decimal('1') - discount)
+                        else:
+                            total_price += quantity * price_per_unit
+                else:
+                    # Discount on all products
+                    for product, quantity, price_per_unit in products_price_list:
+                        total_price += quantity * price_per_unit * (Decimal('1') - discount)
+            except Coupon.DoesNotExist:
+                raise serializers.ValidationError("Invalid coupon code.")
+        else:
+            # No coupon, normal price
+            for product, quantity, price_per_unit in products_price_list:
+                total_price += quantity * price_per_unit
+
+        # All validations passed, now create the order and order items
+        order = Order.objects.create(
+            user=user,
+            address=address,
+            total_items=total_items,
+            total_price=total_price,
+            total_weight=total_weight,
+            coupon_code=applied_coupon_code
+        )
+
+        order_items = []
+        for item in order_items_data:
+            product = item['product']
+            quantity = item['quantity']
             order_items.append(OrderItem(order=order, product=product, quantity=quantity))
-
+            # Update product stock
             product.quantity = F('quantity') - quantity
             product.save()
             product.refresh_from_db()
 
-            total_items += quantity
-
-            if product.is_sale and product.sale_price:
-                total_price += quantity * product.sale_price
-            else:
-                total_price += quantity * product.price
-
         OrderItem.objects.bulk_create(order_items)
 
-        order.total_items = total_items
-        order.total_price = total_price
-        order.total_weight = total_weight
         if order.shipping_status == 'ON_DELIVERED':
             order.payment_status = 'PAID'
         order.save()
         cart, _ = Cart.objects.get_or_create(user=order.user)
         if order.payment_status == 'PAID':
-                cart.products.clear()
-                cart.save()
+            cart.products.clear()
+            cart.save()
         return order
 
 class OrderDeleviringSerializer(serializers.ModelSerializer):
@@ -285,3 +336,54 @@ class SellerConfirmationSerializer(serializers.ModelSerializer):
             user.save()
         return instance
     
+
+class CouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = ['id', 'code', 'discount_percentage', 'valid_from', 'valid_to', 'created_by', 'manually_disabled', 'is_active', 'seller']
+        read_only_fields = ['id', 'created_by', 'is_active']
+        extra_kwargs = {
+            'created_by': {'required': False}
+        }
+
+    def validate_discount_percentage(self, value):
+        if value > 100:
+            raise serializers.ValidationError("Discount percentage cannot be more than 100%.")
+        return value
+
+    def validate(self, data):
+            valid_from = data.get('valid_from', getattr(self.instance, 'valid_from', None))
+            valid_to = data.get('valid_to', getattr(self.instance, 'valid_to', None))
+
+            # وقت الـ create لازم الاتنين يكونوا موجودين
+            if not self.instance and (not valid_from or not valid_to):
+                raise serializers.ValidationError("Both valid_from and valid_to are required when creating a coupon.")
+
+            # الشرط العام للتحقق من التواريخ
+            if valid_from and valid_to and valid_to <= valid_from:
+                raise serializers.ValidationError("valid_to must be greater than valid_from.")
+
+            return data
+    
+class OccasionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Occasion
+        fields = ['id', 'name', 'description', 'start_date', 'end_date', 'created_by', 'manually_disabled', 'is_active', 'seller']
+        read_only_fields = ['id', 'created_by', 'is_active']
+        extra_kwargs = {
+            'created_by': {'required': False}
+        }
+
+    def validate(self, data):
+            start_date = data.get('start_date', getattr(self.instance, 'start_date', None))
+            end_date = data.get('end_date', getattr(self.instance, 'end_date', None))
+
+            # وقت الـ create لازم الاتنين يكونوا موجودين
+            if not self.instance and (not start_date or not end_date):
+                raise serializers.ValidationError("Both start_date and end_date are required when creating an occasion.")
+
+            # الشرط العام للتحقق من التواريخ
+            if start_date and end_date and end_date <= start_date:
+                raise serializers.ValidationError("end_date must be greater than start_date.")
+
+            return data

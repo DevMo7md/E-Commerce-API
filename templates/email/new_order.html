@@ -196,6 +196,9 @@
                     margin-bottom: 16px;
                 "
                 >
+                {% if coupon_discount != 0 %}
+                    Coupon Discount: -{{ coupon_discount|default:"-" }}% {% if order.order_items.first and order.order_items.first.product.get_currency_display %} {{ order.order_items.first.product.get_currency_display }} {% endif %}<br>
+                {% endif %}
                 Total: {{ order.total_price|default:"-" }} {% if order.order_items.first and order.order_items.first.product.get_currency_display %} {{ order.order_items.first.product.get_currency_display }} {% endif %}
                 </div>
                 <div
