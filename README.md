@@ -56,7 +56,7 @@ E-Commerce-API/
 ```
 ## 🔎 Postman Collection
 
-[Download Postman Collection](./Ecommerce API.postman_collection.json)
+[Download Postman Collection](./Ecommerce_API.postman_collection.json)
 
 • Now U can Export it in postman and see it
 
