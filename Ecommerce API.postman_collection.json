@@ -1,0 +1,3029 @@
+{
+	"info": {
+		"_postman_id": "205a8174-5492-4b5b-990e-e393e684e0d7",
+		"name": "Ecommerce API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46754777",
+		"_collection_link": "https://devs55-4240.postman.co/workspace/c8f7be6d-52f3-42fe-aa8d-3a94436a54d6/collection/46754777-205a8174-5492-4b5b-990e-e393e684e0d7?action=share&source=collection_link&creator=46754777"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "test@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/login/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"login",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "DEV.M7md",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "tester@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "phone_number",
+							"value": "0000000000",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "Government-City-st:Street",
+							"type": "text"
+						},
+						{
+							"key": "first_name",
+							"value": "DEV",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Mohammed Tamer",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/register/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM2MDEwLCJpYXQiOjE3NTI1MzU2NDQsImp0aSI6IjYzMThhYzU0Y2Q1ZjQyNzNiMzdkMWIwOTc4OWMyN2IzIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.AKSK3btt8r03GiKwJ3ZjCPYHErg21hXVfRLLoNSBC_0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "refresh",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MzE0MDUxMCwiaWF0IjoxNzUyNTM1NzEwLCJqdGkiOiI5YmI3OGMyZWI5ZDI0ZmI3OTY4ODYxNWJhZTM4NGRkMCIsInVzZXJfaWQiOiIxYTYyZmFlMi01MzdjLTQ5MGUtYjFkZi02N2E4YjRlZmZiMTkifQ.IdyLuoyGRFRKH93wapE5sJvbZKQldUn0J-1RPEOPJSY",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/logout/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"logout",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Profile",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzY2NTkwLCJpYXQiOjE3NTczNjYyOTAsImp0aSI6IjhmOTc2MzZiODA4YTRjMTZhNjRhZjA4M2UyMmExMmViIiwidXNlcl9pZCI6IjIzMzY0ZGEyLThmZGUtNGI4Ny1hNWRlLWEyZTU5MjAwMDUwZiJ9.dQLzEc9mdgjPoXZXS-H7WAAGVZlcCg-ZLC5T0AxBuCE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/profile/?include_addresses=true&include_reviews=true&reviews_page=1&reviews_page_size=10&include_purchases=true&purchases_page=1&purchases_page_size=10",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"profile",
+						""
+					],
+					"query": [
+						{
+							"key": "include_addresses",
+							"value": "true"
+						},
+						{
+							"key": "include_reviews",
+							"value": "true"
+						},
+						{
+							"key": "reviews_page",
+							"value": "1"
+						},
+						{
+							"key": "reviews_page_size",
+							"value": "10"
+						},
+						{
+							"key": "include_purchases",
+							"value": "true"
+						},
+						{
+							"key": "purchases_page",
+							"value": "1"
+						},
+						{
+							"key": "purchases_page_size",
+							"value": "10"
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh JWT Token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM1OTQ0LCJpYXQiOjE3NTI1MzU2NDQsImp0aSI6ImQxMmM3YjBlNmI5NzQ1ZGY4MDUyNTQ3Yzg2MzkzZTAxIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.YHQA132dyhbH9zCTm7aW9HVOtQXX3ON4Yp-i8Z0s5lo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "refresh",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MzE0MDQ0NCwiaWF0IjoxNzUyNTM1NjQ0LCJqdGkiOiJhNzU3M2E0MzFhYmE0M2ViOTgxYWNmOWY5MjExNTZjYSIsInVzZXJfaWQiOiIxYTYyZmFlMi01MzdjLTQ5MGUtYjFkZi02N2E4YjRlZmZiMTkifQ.Xes3sx7ylMfwKoJbArcq5CdkqTkyuls3VAx1jFCkltg",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/token/refresh/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"token",
+						"refresh",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "forget_password_request",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "email",
+							"value": "test@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/password-reset/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"password-reset",
+						""
+					]
+				},
+				"description": "reset_link = f'{frontend_base_url}/{uid}/{token}/ this is link that user should click on  \nyou will handel it to go to (forget_password) end point"
+			},
+			"response": []
+		},
+		{
+			"name": "forget_password",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/password-reset-confirm/MjMzNjRkYTItOGZkZS00Yjg3LWE1ZGUtYTJlNTkyMDAwNTBm/cu8kjj-981b9451d05ac36d971a4fe3da36eb9b/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"password-reset-confirm",
+						"MjMzNjRkYTItOGZkZS00Yjg3LWE1ZGUtYTJlNTkyMDAwNTBm",
+						"cu8kjj-981b9451d05ac36d971a4fe3da36eb9b",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_products",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/products/?page=1&is_sale=true&seller=admin&category=Mouse&price_max=600&is_available=true",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"products",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "is_sale",
+							"value": "true"
+						},
+						{
+							"key": "seller",
+							"value": "admin"
+						},
+						{
+							"key": "category",
+							"value": "Mouse"
+						},
+						{
+							"key": "price_max",
+							"value": "600"
+						},
+						{
+							"key": "is_available",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "related_products",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/products/2/related-products/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"2",
+						"related-products",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "top_products",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/products/top/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"top",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_suggested_products",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU0NDExNzUwLCJpYXQiOjE3NTQ0MTE0NTAsImp0aSI6Ijg4OTUyZTFlN2E3NzQ5NTY5ZTEzNjU2MjMwY2ZiODRiIiwidXNlcl9pZCI6IjQ4NTA0NjdmLTZkOGMtNGFlNy05MGRjLTA4Y2ViZGQ5ZWY5ZSJ9.5-lQ4Z26ES-R43dsDHKSGBt9oxiNGKHGhG5aqT7o_zw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/products/suggested/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"suggested",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create_product",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzNDkyMjgxLCJpYXQiOjE3NTM0OTE5ODEsImp0aSI6ImYxODViMGE0MmIxNDRiNWQ5OTBjZTI1YTM1MmUwMmYyIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.l7gp_MVxqxFgC3u6vEUnvhTts917ZTKTS4w1IVrFhuk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name ",
+							"value": "Key Board",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "600",
+							"type": "text"
+						},
+						{
+							"key": "photo",
+							"type": "file",
+							"src": "/D:/python_projects/EcommerceAPI/Ecommerce_API/media/products/download.jpeg"
+						},
+						{
+							"key": "quantity",
+							"value": "200",
+							"type": "text"
+						},
+						{
+							"key": "brand",
+							"value": "Logitech",
+							"type": "text"
+						},
+						{
+							"key": "is_available",
+							"value": "True",
+							"description": "True is default , unless it is finished",
+							"type": "text"
+						},
+						{
+							"key": "is_sale",
+							"value": "True",
+							"description": "False id default unless admin change it",
+							"type": "text"
+						},
+						{
+							"key": "sale_price",
+							"value": "null",
+							"description": "change if product has sale_percentage !=0 and is_sale == True",
+							"type": "text"
+						},
+						{
+							"key": "sale_percentage",
+							"value": "15",
+							"type": "text"
+						},
+						{
+							"key": "category",
+							"value": "4",
+							"description": "category's id",
+							"type": "text"
+						},
+						{
+							"key": "comment",
+							"value": "this is strongest Keyboard forever",
+							"description": "optionally",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/products/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"products",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_one_product",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/products/3/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"3",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_product",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzNDkyNzI4LCJpYXQiOjE3NTM0OTI0MjgsImp0aSI6ImEzZDJiYTI4NTBmNTQwNzZhNmFhZTFlNWY0ZWUxN2IzIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.0LG5V7p3cVLV02FiEh2cdSCgJuy_ERC_vsxdyQF6oCI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name ",
+							"value": "mouse RGB",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "150",
+							"type": "text"
+						},
+						{
+							"key": "photo",
+							"type": "file",
+							"src": "/D:/project's photos/ecommerce/mouse.jpeg"
+						},
+						{
+							"key": "quantity",
+							"value": "150",
+							"type": "text"
+						},
+						{
+							"key": "brand",
+							"value": "Logitech",
+							"type": "text"
+						},
+						{
+							"key": "is_available",
+							"value": "True",
+							"description": "True is default , unless it is finished",
+							"type": "text"
+						},
+						{
+							"key": "is_sale",
+							"value": "True",
+							"description": "False id default unless admin change it",
+							"type": "text"
+						},
+						{
+							"key": "sale_price",
+							"value": "null",
+							"description": "change if product has sale_percentage !=0 and is_sale == True",
+							"type": "text"
+						},
+						{
+							"key": "sale_percentage",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "category",
+							"value": "2",
+							"description": "category's id",
+							"type": "text"
+						},
+						{
+							"key": "comment",
+							"value": "mouse with DPI",
+							"description": "optionally",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/products/3/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"3",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete_product",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzNDkyOTI5LCJpYXQiOjE3NTM0OTI2MjksImp0aSI6ImI1OGM2NWUwYjAyZDRhOTliZDYzNTYzMjhhNmY5YjdjIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.Y-vnE3epl9ezHoZdVK_76I8C7xnWms13oGsRKW6xsW4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/products/9/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"9",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_reviews",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/reviews/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"reviews",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make_review",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzNDkzMDQ0LCJpYXQiOjE3NTM0OTI3NDQsImp0aSI6IjIyOWZiYWIxMTI4NjRlNWM4ZDRmNzUwZmM1YzU2ZmE4IiwidXNlcl9pZCI6IjQ4NTA0NjdmLTZkOGMtNGFlNy05MGRjLTA4Y2ViZGQ5ZWY5ZSJ9.8BWGAbp8ltvR2My7QOXv8zd2qnJoJR2s0xp0bdT-tpc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "product",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "comment",
+							"value": "So beautiful KeyBoard",
+							"type": "text"
+						},
+						{
+							"key": "rate",
+							"value": "5",
+							"description": "from 1 to 5",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/reviews/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"reviews",
+						""
+					]
+				},
+				"description": "1<=rate <=5\n\nand rate is integar field"
+			},
+			"response": []
+		},
+		{
+			"name": "update_reveiw",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzNDkzNzE0LCJpYXQiOjE3NTM0OTM0MTQsImp0aSI6Ijc4ZmNkN2QzZTg5OTRjMWJiN2NhYzNmM2Y5ZDFiY2E4IiwidXNlcl9pZCI6IjQ4NTA0NjdmLTZkOGMtNGFlNy05MGRjLTA4Y2ViZGQ5ZWY5ZSJ9.z2WABO8TVxPSjWqpxzrSJR6VI7cedmi-m0MDyQ_IUD0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "rate",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "product",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "comment",
+							"value": "this is awsome KB",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/reviews/8/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"reviews",
+						"8",
+						""
+					]
+				},
+				"description": "keep old data in updating form"
+			},
+			"response": []
+		},
+		{
+			"name": "delete_reviw",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUzNDkzODU1LCJpYXQiOjE3NTM0OTM1NTUsImp0aSI6IjE2MzQwZTE0YmEzZTQ3YjdiYTAyMzgxNzY3MjFjZDE1IiwidXNlcl9pZCI6IjQ4NTA0NjdmLTZkOGMtNGFlNy05MGRjLTA4Y2ViZGQ5ZWY5ZSJ9.JTLHFkvNgqRbdZq2PMunJwO6iRp9UV2DSzW0z1hOa_k",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/reviews/8/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"reviews",
+						"8",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_categories",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/categories/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"categories",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create_category",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNzE4MDUwLCJpYXQiOjE3NTI3MTc3NTAsImp0aSI6ImE4ZmZmMDdmYjM0NzRhYzFiMzg3ZDQxZjQ2MTI3NTI5IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.ZihT4VOlRduKHBYsp-FitwG-s4pKu5P0c-xfOEUyJ8c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "mouses",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/categories/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"categories",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_category",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNzE4MDUwLCJpYXQiOjE3NTI3MTc3NTAsImp0aSI6ImE4ZmZmMDdmYjM0NzRhYzFiMzg3ZDQxZjQ2MTI3NTI5IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.ZihT4VOlRduKHBYsp-FitwG-s4pKu5P0c-xfOEUyJ8c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "Phones",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/categories/1/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"categories",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete_category",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNzE4MDUwLCJpYXQiOjE3NTI3MTc3NTAsImp0aSI6ImE4ZmZmMDdmYjM0NzRhYzFiMzg3ZDQxZjQ2MTI3NTI5IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.ZihT4VOlRduKHBYsp-FitwG-s4pKu5P0c-xfOEUyJ8c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/categories/3/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"categories",
+						"3",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_cart",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjY3ODI0LCJpYXQiOjE3NTYyNjc1MjQsImp0aSI6ImUxZThlNWUyOWVhNTRlZGRiZTJlMWY5ZTcwZjk5M2NjIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.RaHVRwwMRVatSMlF6qH-58RDqi8kdohw0JBS5rbIWy0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/cart/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"cart",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add_item_to_cart",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjY3ODI0LCJpYXQiOjE3NTYyNjc1MjQsImp0aSI6ImUxZThlNWUyOWVhNTRlZGRiZTJlMWY5ZTcwZjk5M2NjIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.RaHVRwwMRVatSMlF6qH-58RDqi8kdohw0JBS5rbIWy0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "product_id",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "quantity",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/cart/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"cart",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_cart(item)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjY3Mzg1LCJpYXQiOjE3NTYyNjcwODUsImp0aSI6IjZiOWVhMDBjYjdlNTQ5MTdiYTAwYWM5MmFkYjYyMDYzIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.J1Tvyt45k_P3nXQr7P-nyyMdbJ--z3icnoenNHyFF_0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "quantity",
+							"value": "2",
+							"description": "if quantity = 0 ---> delete item",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/cart/18/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"cart",
+						"18",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete_item_from_cart",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjY3ODI0LCJpYXQiOjE3NTYyNjc1MjQsImp0aSI6ImUxZThlNWUyOWVhNTRlZGRiZTJlMWY5ZTcwZjk5M2NjIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.RaHVRwwMRVatSMlF6qH-58RDqi8kdohw0JBS5rbIWy0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/cart/19/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"cart",
+						"19",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_orders",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NDYxNzYyLCJpYXQiOjE3NTc0NjE0NjIsImp0aSI6IjYyNjg2ZmQ4ZjFjMzRhZGJhZTdmNWE1NTUzZjdjMDY3IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.t0CBpPY5N4Xr--hodKKrNI-Am09B5Uhj17jkts_IX3g",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/orders/?page=2&status=PENDING",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"orders",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "2"
+						},
+						{
+							"key": "status",
+							"value": "PENDING"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_order",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjU4NTA3LCJpYXQiOjE3NTYyNTgyMDcsImp0aSI6ImQ2NjE4YWY3ZDgyMDQ4NDM5ZjU4YWNkYmYzY2VkNjliIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.155pEUb1tueDBKXAaSbqsBl02bZ2sUkoWPN9aGuJIT8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/orders/24/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"orders",
+						"24",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NDYyMzUwLCJpYXQiOjE3NTc0NjIwNTAsImp0aSI6Ijk1ZjY3MDA4NGM3YzQwMTE4NGFlZDZkOWZhNjViMTc3IiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.WZm80cBZ6J1MoZAZGP6qSjBJwdy0lC5pfK33wLz7Y9o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"items\": [\r\n    {\"product_id\": 3, \"quantity\": 2},\r\n     {\"product_id\": 2, \"quantity\": 1}\r\n\r\n  ],\r\n  \"coupon_code\": \"mohammed123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/create-orders/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"create-orders",
+						""
+					]
+				},
+				"description": "Get products and quantity from Cart"
+			},
+			"response": []
+		},
+		{
+			"name": "update_order_status(delevery)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NDYyMzg3LCJpYXQiOjE3NTc0NjIwODcsImp0aSI6ImFlMjE1MzhmOTlmNTQzODlhZjEzOTFmYTgyNmRkODg2IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.91vMgfuD8cglWFqUfpoqktmt8qKdXyW-MaAHk8kfKB8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "status",
+							"value": "ON_DELIVERY",
+							"type": "text"
+						},
+						{
+							"key": "payment_status",
+							"value": "PAID",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/orders/51/update-status/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"orders",
+						"51",
+						"update-status",
+						""
+					]
+				},
+				"description": "Delivery man commit it On Delivering\n\npayment_status : PENDING , PAID, FAILED, REFUNDED\n\nstatus (order_status) : PENDING, ON_DELIVERY, DELIVERED, FAILED, RETRIEVED"
+			},
+			"response": []
+		},
+		{
+			"name": "get_purchase",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjU4NTA3LCJpYXQiOjE3NTYyNTgyMDcsImp0aSI6ImQ2NjE4YWY3ZDgyMDQ4NDM5ZjU4YWNkYmYzY2VkNjliIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.155pEUb1tueDBKXAaSbqsBl02bZ2sUkoWPN9aGuJIT8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/purchase/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"purchase",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Extra_features",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1MDQxMjA3LCJpYXQiOjE3NTUwNDA5MDcsImp0aSI6IjU0YTViODkzMTNmZDQ1NmI4ZTlmNmY2NGEwYmJiYmE3IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.Xf5R59WIFPIRt9rMmnBIlOe_FEBXiHrJC-Yz0jkTrus",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/extra-features/1/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"extra-features",
+						"1",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add extra feature",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1MDMzMjkwLCJpYXQiOjE3NTUwMzI5OTAsImp0aSI6IjExYWJmY2IxMDNiNzRiOTViMzdjZDM0NzE2YTlmZTZmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.ErEs2h77hM5k8H0Wp50-pdjGykpk6UYQgnk8QeKuWZE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "feature_name",
+							"value": "color",
+							"type": "text"
+						},
+						{
+							"key": "feature_value",
+							"value": "selver",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/extra-features/1/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"extra-features",
+						"1",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update extra feature",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1MDQxMjA3LCJpYXQiOjE3NTUwNDA5MDcsImp0aSI6IjU0YTViODkzMTNmZDQ1NmI4ZTlmNmY2NGEwYmJiYmE3IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.Xf5R59WIFPIRt9rMmnBIlOe_FEBXiHrJC-Yz0jkTrus",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "feature_name",
+							"value": "ROM",
+							"type": "text"
+						},
+						{
+							"key": "feature_value",
+							"value": "128 GB",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/extra-features-details/1/1/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"extra-features-details",
+						"1",
+						"1",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete extra feature",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1MDQxMjA3LCJpYXQiOjE3NTUwNDA5MDcsImp0aSI6IjU0YTViODkzMTNmZDQ1NmI4ZTlmNmY2NGEwYmJiYmE3IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.Xf5R59WIFPIRt9rMmnBIlOe_FEBXiHrJC-Yz0jkTrus",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/extra-features-details/1/1/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"extra-features-details",
+						"1",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update_profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1MDM4MzMwLCJpYXQiOjE3NTUwMzgwMzAsImp0aSI6ImM1NDQ5NmIxOWE1NjQzMmNhMTRjZmRlYTMzZGFjOGNiIiwidXNlcl9pZCI6IjZkOWNiNDU3LWE5MTYtNDg4NC05Mjc4LWI0ZmM0ODIyOTRiYSJ9.CrIRA3tkmd0WcjmxszbKvTWSbdv-l7WgYhY-JWzV_tg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "fullname",
+							"value": "Mohammed Younis",
+							"type": "text"
+						},
+						{
+							"key": "phone_num",
+							"value": "00000000000",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/profile-update/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"profile-update",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				},
+				"description": "If you want to edit one field Keep the values of the others"
+			},
+			"response": []
+		},
+		{
+			"name": "update email",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1MDQwNTI4LCJpYXQiOjE3NTUwNDAyMjgsImp0aSI6Ijk3N2Q3Y2RkOGUyNjQxNjFiZjhjNTNhMGNkY2VhNjZlIiwidXNlcl9pZCI6IjZkOWNiNDU3LWE5MTYtNDg4NC05Mjc4LWI0ZmM0ODIyOTRiYSJ9.vjn_21kDmi9VQRMN48qWfCeu0Mpjl3WaivaaNj18EzQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "new_email",
+							"value": "test@gmail.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/email-reset/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"email-reset",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Google-login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Bearer",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNTM0MDk2LCJpYXQiOjE3NTI1MzM3OTYsImp0aSI6IjczNGE1OGY5ZDYyMDQyYmRhNWMxMmY0MGFiZDAyMDJmIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.WAn8pevF24I8iRE8iXJmcfbvysGyPUVWqFKJEJ98ic4",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id_token\": \"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/google-login/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"google-login",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get addresses",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjYzNTIzLCJpYXQiOjE3NTYyNjMyMjMsImp0aSI6IjA4Y2JmNTZjMWU1ODRmN2ZhNGZkN2Q1MGFhMWNhNzJhIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.DfQAJqsEBxlflMZqNS265BOU5JoPkqUdSFHBnPgcGeo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/addresses/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"addresses",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create address",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjYzMDk0LCJpYXQiOjE3NTYyNjI3OTQsImp0aSI6ImViY2Y1YjFkYjA1NjQ3MDRhZTU0YWYwZDNjODkxMzZhIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.0mUFfOMaLOtUnGqS-F-AOVXBRHT7mv5BVB_YCRYqp8g",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "government",
+							"value": "Sharkia",
+							"type": "text"
+						},
+						{
+							"key": "city",
+							"value": "zagazig",
+							"type": "text"
+						},
+						{
+							"key": "street",
+							"value": "Ahmes Orabi",
+							"type": "text"
+						},
+						{
+							"key": "zip_code",
+							"value": "2006",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/addresses/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"addresses",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "edit address",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjYzNTIzLCJpYXQiOjE3NTYyNjMyMjMsImp0aSI6IjA4Y2JmNTZjMWU1ODRmN2ZhNGZkN2Q1MGFhMWNhNzJhIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.DfQAJqsEBxlflMZqNS265BOU5JoPkqUdSFHBnPgcGeo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "government",
+							"value": "Sharkia",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "city",
+							"value": "zagazig",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "street",
+							"value": "Ahmes Orabi",
+							"type": "text"
+						},
+						{
+							"key": "zip_code",
+							"value": "2006",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/addresses/4/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"addresses",
+						"4",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Support partical eddition --> يدعم التعديل في حقل واحد دون الحاجه لتثبيت الباقي يدويا"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Address",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MjYzNTIzLCJpYXQiOjE3NTYyNjMyMjMsImp0aSI6IjA4Y2JmNTZjMWU1ODRmN2ZhNGZkN2Q1MGFhMWNhNzJhIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.DfQAJqsEBxlflMZqNS265BOU5JoPkqUdSFHBnPgcGeo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "government",
+							"value": "Sharkia",
+							"type": "text"
+						},
+						{
+							"key": "city",
+							"value": "zagazig",
+							"type": "text"
+						},
+						{
+							"key": "street",
+							"value": "Ahmes Orabi",
+							"type": "text"
+						},
+						{
+							"key": "zip_code",
+							"value": "2006",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/addresses/5/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"addresses",
+						"5",
+						""
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get sellers apps",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MDA0MTU0LCJpYXQiOjE3NTcwMDM4NTQsImp0aSI6IjAyODc2YTc2ZjIwMjQ5NzRiYzIyOGQxY2YxODAwMWFlIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.P7GlrBUKtZi_DynHwedjA7gST3ISdlhGwR3p2t42S0Y",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/sellers-applications/?status=APPROVED&seller=tester",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"sellers-applications",
+						""
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "APPROVED"
+						},
+						{
+							"key": "seller",
+							"value": "tester"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get app",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MDA0MTU0LCJpYXQiOjE3NTcwMDM4NTQsImp0aSI6IjAyODc2YTc2ZjIwMjQ5NzRiYzIyOGQxY2YxODAwMWFlIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.P7GlrBUKtZi_DynHwedjA7gST3ISdlhGwR3p2t42S0Y",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/sellers-applications/2",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"sellers-applications",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create seller app",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MDAzMTQxLCJpYXQiOjE3NTcwMDI4NDEsImp0aSI6ImVkYWU1YWQxMTEwODRjODU4ZTEzZjQ3NDE3NDU5ZTM5IiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.6jjG5XVynLvgRBg7uEGureTBmIoPj46H2gw8n6cYQ9w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "full_name",
+							"value": "test name",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "Government-City-Olilah",
+							"type": "text"
+						},
+						{
+							"key": "phone_number",
+							"value": "00000000000",
+							"type": "text"
+						},
+						{
+							"key": "business_name",
+							"value": "flowes and candle -handcreaft",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "انا مصطفى بعمل شمع بروائح مختلفه و بعمل ورود بالستان",
+							"type": "text"
+						},
+						{
+							"key": "documents",
+							"type": "file",
+							"src": [
+								"/D:/python_projects/EcommerceAPI/Ecommerce_API/media/products/download.jpeg",
+								"/D:/python_projects/EcommerceAPI/Ecommerce_API/media/products/mouse.jpeg",
+								"/D:/python_projects/EcommerceAPI/Ecommerce_API/media/products/Nokia.jpeg"
+							]
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/sellers-applications/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"sellers-applications",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update app status (admin)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MDAyOTE5LCJpYXQiOjE3NTcwMDI2MTksImp0aSI6IjUwODk4M2NlOGI1OTRhNjJhYzdiMmVmMjQ0Yjk3ZWJhIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.8navpKRrzgjkbzr85ERHj6_w8r3c9e2E7AU5MaMnETk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "request_status",
+							"value": "REJECTED",
+							"type": "text"
+						},
+						{
+							"key": "rejection_reason",
+							"value": "الملفات المطلوبه غير صالحه الرجاء التأكد من صحه بياناتك و صور بطاقتك",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/sellers-applications/2/update-status/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"sellers-applications",
+						"2",
+						"update-status",
+						""
+					]
+				},
+				"description": "request_status : PENDING , REJECTED, APPROVED"
+			},
+			"response": []
+		},
+		{
+			"name": "update app (user)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MDAzOTkxLCJpYXQiOjE3NTcwMDM2OTEsImp0aSI6IjM0ZWVjOTZjODZkYzQwMmU4YmM5ODA1ZTg1MmVhNWUwIiwidXNlcl9pZCI6IjIzMzY0ZGEyLThmZGUtNGI4Ny1hNWRlLWEyZTU5MjAwMDUwZiJ9.EwhusT1wWQ89FItJ0MrkObRFsU_NL-zHcXFthCWLF6s",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "full_name",
+							"value": "محمد يونس",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "Government-City-Area",
+							"type": "text"
+						},
+						{
+							"key": "phone_number",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "description",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "business_name",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "documents",
+							"type": "file",
+							"src": [],
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/sellers-applications/4/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"sellers-applications",
+						"4",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete app",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MDA0MzY2LCJpYXQiOjE3NTcwMDQwNjYsImp0aSI6IjMyYzJlYjQ3NWZmZjQ2ZWJhM2U5YWM4NjVjYTQ4MjBlIiwidXNlcl9pZCI6IjIzMzY0ZGEyLThmZGUtNGI4Ny1hNWRlLWEyZTU5MjAwMDUwZiJ9.lWH5RLdVx5h9sKwyDV_97-kA_UGJLQ8fpR9C70w-6Ag",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/sellers-applications/4/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"sellers-applications",
+						"4",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get coupons",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzU5NTYyLCJpYXQiOjE3NTczNTkyNjIsImp0aSI6IjRlNDg4NjQ2ZjlkZDRlYjNiZTMyMzQxN2ZmZmNiZGRlIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.7vOs94_YndtebmCNJriGz5yH-deeWMAWN-ihTX3TRm8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/coupons/?code=S&valid_to=2025-09-09&valid_from=2025-09-08&is_active=true&seller=tester",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"coupons",
+						""
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "S"
+						},
+						{
+							"key": "valid_to",
+							"value": "2025-09-09"
+						},
+						{
+							"key": "valid_from",
+							"value": "2025-09-08"
+						},
+						{
+							"key": "is_active",
+							"value": "true"
+						},
+						{
+							"key": "seller",
+							"value": "tester"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "make coupon",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzQ1NDAxLCJpYXQiOjE3NTczNDUxMDEsImp0aSI6ImY3YzgxMmJhNWFiZjQ2NTViMGI2OTZjYmNlODkwN2Y0IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.qAmBbgDhfnOW4IatWx4zSRgJ4oqSKRxcJwSPTMM9k8M",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "code",
+							"value": "S2612",
+							"type": "text"
+						},
+						{
+							"key": "discount_percentage",
+							"value": "30",
+							"type": "text"
+						},
+						{
+							"key": "valid_from",
+							"value": "2025-09-08T10:00:00Z",
+							"type": "text"
+						},
+						{
+							"key": "valid_to",
+							"value": "2025-09-09T23:59:59Z",
+							"type": "text"
+						},
+						{
+							"key": "seller",
+							"value": "15e0fb3e-1615-47eb-88ed-33849434b16b",
+							"type": "text"
+						},
+						{
+							"key": "manually_disabled",
+							"value": "true",
+							"type": "text"
+						},
+						{
+							"key": "limit",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "limit_per_user",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "times_used",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/coupons/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"coupons",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get one coupon",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzQ3NjcxLCJpYXQiOjE3NTczNDczNzEsImp0aSI6IjkyOTAyMzIwYTMyYTRiODVhNjdlYmNlMjU1ODNlZDM2IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.SgYuNaDPe_4sWLGAgUuJlkXyfutaFhTsS1meTxP8rdM",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/coupons/3/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"coupons",
+						"3",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update coupon",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzQ4MzQzLCJpYXQiOjE3NTczNDgwNDMsImp0aSI6IjZkYWE1NWM5ZDVhODQ4Yzg4NmEyMDNkNTRmNWVhYjQ4IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.1YZgUKFYrvBrmGEEF9IvMpDEj4wE0Fb8Wrz8Tl0g20o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "code",
+							"value": "HAMADA25",
+							"type": "text"
+						},
+						{
+							"key": "discount_percentage",
+							"value": "25",
+							"type": "text"
+						},
+						{
+							"key": "manually_disabled",
+							"value": "true",
+							"type": "text"
+						},
+						{
+							"key": "valid_from",
+							"value": "2025-09-08T10:00:00Z",
+							"type": "text"
+						},
+						{
+							"key": "valid_to",
+							"value": "2025-09-09T23:59:59Z",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/coupons/3/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"coupons",
+						"3",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete coupon",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzQ4MzQzLCJpYXQiOjE3NTczNDgwNDMsImp0aSI6IjZkYWE1NWM5ZDVhODQ4Yzg4NmEyMDNkNTRmNWVhYjQ4IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.1YZgUKFYrvBrmGEEF9IvMpDEj4wE0Fb8Wrz8Tl0g20o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/coupons/4/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"coupons",
+						"4",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Users for admin",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NDU5NDI4LCJpYXQiOjE3NTc0NTkxMjgsImp0aSI6IjZmOWEyOWY4Njk3ODQxZDM5NjBiODA1OTE3NDhiYjdiIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.LlBF9lRsVd9cyI_jpw6TtovrxMbT-gQ6s0qBgsvZeFQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/users/?is_seller=true",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"users",
+						""
+					],
+					"query": [
+						{
+							"key": "is_seller",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get One User for admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NDU5NDI4LCJpYXQiOjE3NTc0NTkxMjgsImp0aSI6IjZmOWEyOWY4Njk3ODQxZDM5NjBiODA1OTE3NDhiYjdiIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.LlBF9lRsVd9cyI_jpw6TtovrxMbT-gQ6s0qBgsvZeFQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/users/1a62fae2-537c-490e-b1df-67a8b4effb19/?include_products=true&products_page=1&products_page_size=10&include_coupons=true&coupons_page=1&coupons_page_size=10&include_occasions=true&occasions_page=1&occasions_page_size=10&include_orders=true&orders_page=1&orders_page_size=10&include_purchases=true&purchases_page=1&purchases_page_size=10&include_addresses=true\n",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"1a62fae2-537c-490e-b1df-67a8b4effb19",
+						""
+					],
+					"query": [
+						{
+							"key": "include_products",
+							"value": "true"
+						},
+						{
+							"key": "products_page",
+							"value": "1"
+						},
+						{
+							"key": "products_page_size",
+							"value": "10"
+						},
+						{
+							"key": "include_coupons",
+							"value": "true"
+						},
+						{
+							"key": "coupons_page",
+							"value": "1"
+						},
+						{
+							"key": "coupons_page_size",
+							"value": "10"
+						},
+						{
+							"key": "include_occasions",
+							"value": "true"
+						},
+						{
+							"key": "occasions_page",
+							"value": "1"
+						},
+						{
+							"key": "occasions_page_size",
+							"value": "10"
+						},
+						{
+							"key": "include_orders",
+							"value": "true"
+						},
+						{
+							"key": "orders_page",
+							"value": "1"
+						},
+						{
+							"key": "orders_page_size",
+							"value": "10"
+						},
+						{
+							"key": "include_purchases",
+							"value": "true"
+						},
+						{
+							"key": "purchases_page",
+							"value": "1"
+						},
+						{
+							"key": "purchases_page_size",
+							"value": "10"
+						},
+						{
+							"key": "include_addresses",
+							"value": "true\n"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get occasions",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/occasions/?name=Sale&description=TECH&is_active=true&start_date=2025-09-08&end_date=2025-09-10",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"occasions",
+						""
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "Sale"
+						},
+						{
+							"key": "description",
+							"value": "TECH"
+						},
+						{
+							"key": "is_active",
+							"value": "true"
+						},
+						{
+							"key": "start_date",
+							"value": "2025-09-08"
+						},
+						{
+							"key": "end_date",
+							"value": "2025-09-10"
+						},
+						{
+							"key": "seller",
+							"value": "USERNAME- Email - firstname",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "make occasions",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzU1NjczLCJpYXQiOjE3NTczNTUzNzMsImp0aSI6ImU0MTljMDlmYjFkMTRlZGE4MWZiMjRlMmYwNTIxYzE5IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.-Smh9eMOjp3Xfr-xm7-wenX2k0FfjDezXFx3TQ1KuqU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "TECH Sale !! ",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "35% sale on all TECH products !!!!!!",
+							"type": "text"
+						},
+						{
+							"key": "seller",
+							"value": "ID",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "start_date",
+							"value": "2025-09-08T00:00:59Z",
+							"type": "text"
+						},
+						{
+							"key": "end_date",
+							"value": "2025-9-10T23:59:59Z",
+							"type": "text"
+						},
+						{
+							"key": "manually_disabled",
+							"value": "true",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/occasions/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"occasions",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get one occasion",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/occasions/1/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"occasions",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "edit occasion",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzU3OTM2LCJpYXQiOjE3NTczNTc2MzYsImp0aSI6IjFhOWRkM2EzZTc2MzQ3NzU4MzVhMGZlYmI1N2ZlYTRlIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.VrlX2PFCX1vIesgXBxDJ-L5Oh8ePGvgEpiUMY5dLzJw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "Sale !!! ",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "35% sale on all TECH products !!!!!!",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "seller",
+							"value": "ID",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "start_date",
+							"value": "2025-09-08T00:00:59Z",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "end_date",
+							"value": "2025-9-10T23:59:59Z",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "manually_disabled",
+							"value": "true",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/occasions/1/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"occasions",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete occasion",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3MzU3OTM2LCJpYXQiOjE3NTczNTc2MzYsImp0aSI6IjFhOWRkM2EzZTc2MzQ3NzU4MzVhMGZlYmI1N2ZlYTRlIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.VrlX2PFCX1vIesgXBxDJ-L5Oh8ePGvgEpiUMY5dLzJw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/occasions/1/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"occasions",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "admin dashboard",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NDU5MTE2LCJpYXQiOjE3NTc0NTg4MTYsImp0aSI6Ijg0ODM4MWE3OGI2NzRhZDY5MmRhNzI2NmM4NmI0ZTc0IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.iqrTrFhbkG8XFXhJCK53c7meCq3aLQ-_8YdXja8cqeI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/admin-dashboard/?last_orders=2&top_products=2",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"admin-dashboard",
+						""
+					],
+					"query": [
+						{
+							"key": "last_orders",
+							"value": "2"
+						},
+						{
+							"key": "top_products",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "seller dashboard",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NDU5ODExLCJpYXQiOjE3NTc0NTk1MTEsImp0aSI6IjVjYWI5ODEyMGM4YzRmNjM4MjIzNDAwZWQ3OTk1ZDE5IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.Nu8VpMUn-5zPgciYzBuIbX_cCP8Aahja-4chV0NmS7s",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/seller-dashboard/?last_orders=2&top_products=2",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"seller-dashboard",
+						""
+					],
+					"query": [
+						{
+							"key": "last_orders",
+							"value": "2"
+						},
+						{
+							"key": "top_products",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://127.0.0.1:8000",
+			"type": "default"
+		}
+	]
+}

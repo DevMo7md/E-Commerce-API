@@ -54,6 +54,11 @@ E-Commerce-API/
 ├── db.sqlite3            # Local SQLite database
 └── manage.py             # Django management script
 ```
+## 🔎 Postman Collection
+
+[Download Postman Collection](./my_collection.json)
+
+• Now U can Export it in postman and see it
 
 ## 🚀 How to Run
 
