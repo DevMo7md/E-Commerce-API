@@ -125,6 +125,7 @@ class PaymentStatus(models.TextChoices):
 
 class OrderStatus(models.TextChoices):
     PENDING = 'PENDING', 'قيد التوصيل'
+    ON_DELIVERY = 'ON_DELIVERY', 'جاري التوصيل'
     DELIVERED = 'DELIVERED', 'تم التوصيل'
     FAILED = 'FAILED', 'فشل التوصيل'
     RETRIEVED = 'RETRIEVED', 'تم الاسترجاع'

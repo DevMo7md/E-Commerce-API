@@ -20,7 +20,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from django.utils.crypto import get_random_string
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, F, Sum, DecimalField, ExpressionWrapper
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
@@ -603,6 +603,11 @@ class Orders(APIView):
 
         response_data = {
             "orders": serializer.data,
+            "pagination": {
+                "count": orders.count(),
+                "next": pagenator.get_next_link(),
+                "previous": pagenator.get_previous_link(),
+            }
         }
         if request.user.is_staff :
             response_data["total_orders"] = orders.count()
@@ -677,6 +682,15 @@ def add_products_to_purchase(user, order_items):
             purchase.products.add(item.product)
     purchase.save()
 
+def on_road_email(order, coupon_discount):
+    subject = 'Your Order On The Way'
+    html_message = render_to_string('email/order_on_the_way.html', {'order': order, 'coupon_discount': coupon_discount})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [order.user.email])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
+
 class OrderDeleviring(APIView):
     permission_classes = [IsDeliveryOrSuperUser]
 
@@ -687,9 +701,10 @@ class OrderDeleviring(APIView):
         if serializer.is_valid():
             serializer.save()
             order.refresh_from_db()
-
-            if order.payment_status == 'PAID':
-                cart.products.clear()
+            if order.status == 'ON_DELIVERY':
+                coupn = get_object_or_404(Coupon, code=order.coupon_code) if order.coupon_code else None
+                coupon_discount = coupn.discount_percentage if coupn else 0
+                on_road_email(order, coupon_discount)
 
             order_items = order.order_items.all()
             if order.status == 'DELIVERED' and order.payment_status == 'PAID' :
@@ -1084,6 +1099,24 @@ class UserDetails(APIView):
 
         # Seller data
         if user.is_seller:
+            # Get latest approved or pending seller application
+            seller_app = user.seller_applications.order_by('-application_date').first()
+            if seller_app:
+                response['contact_info'] = {
+                    'full_name': seller_app.full_name,
+                    'business_name': seller_app.business_name,
+                    'phone_number': seller_app.phone_number,
+                    'address': seller_app.address,
+                    'email': user.email,
+                }
+            else:
+                response['contact_info'] = {
+                    'full_name': user.get_full_name(),
+                    'business_name': '',
+                    'phone_number': user.phone_number,
+                    'address': user.address,
+                    'email': user.email,
+                }
             if include_products:
                 products_qs = user.products.all().select_related('category').prefetch_related('extra_features')
                 products_paginator = PageNumberPagination()
@@ -1146,3 +1179,84 @@ class UserDetails(APIView):
             response['user_reviews_count'] = user.reviews.count()
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class AdminDashboard(APIView):
+
+    permission_classes = [IsSuperUser]
+    
+    def get(self, request):
+        cache_key = f"admin_dashboard_{request.user.id}"
+        dashboard_data = cache.get(cache_key)
+        if not dashboard_data:
+            commission_rate = 0.05 # 5% commission
+            total_users = CustomUser.objects.count()
+            total_sellers = CustomUser.objects.filter(is_seller=True).count()
+            total_products = Product.objects.count()
+            total_orders = Order.objects.count()
+            total_revenue = Order.objects.filter(payment_status='PAID').aggregate(
+            total_revenue=Sum(ExpressionWrapper(F('total_price') * commission_rate, output_field=DecimalField())))['total_revenue'] or 0
+
+            last_n = int(request.query_params.get('last_orders', 10)) # Number of recent orders to fetch
+            top_n = int(request.query_params.get('top_products', 10))
+
+            last_orders_qs = Order.objects.select_related('user', 'address').prefetch_related('order_items__product').order_by('-date_of_order')[:last_n]
+            last_orders = OrderSerializer(last_orders_qs, many=True).data
+
+            top_products_qs = Product.objects.order_by('-num_of_sales')[:top_n]
+            top_products = ProductSerializer(top_products_qs, many=True).data
+
+            dashboard_data = {
+                'total_users': total_users,
+                'total_sellers': total_sellers,
+                'total_products': total_products,
+                'total_orders': total_orders,
+                'total_revenue': total_revenue,
+                'last_orders': last_orders,
+                'top_products': top_products,
+            }
+            cache.set(cache_key, dashboard_data, timeout=30)  # Cache for 30 sec
+
+        return Response(dashboard_data, status=status.HTTP_200_OK)
+
+
+class SellerDashboard(APIView):
+    permission_classes = [IsSellerOrSuperUser]
+    
+    def get(self, request):
+        commission_rate = 0.05 # 5% commission
+        user = request.user
+        if not user.is_seller:
+            return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
+        
+        total_products = user.products.count()
+        total_coupons = user.coupons.count()
+        total_occasions = user.occasions.count()
+
+        orders = Order.objects.filter(order_items__product__seller=user).distinct()
+        total_orders = orders.count()
+        total_revenue = orders.filter(payment_status='PAID').aggregate(
+        total_revenue=Sum(ExpressionWrapper(F('total_price') * (1 - commission_rate), output_field=DecimalField())))['total_revenue'] or 0
+
+        last_n = int(request.query_params.get('last_orders', 10))
+        top_n = int(request.query_params.get('top_products', 10))
+
+        last_orders_qs = orders.select_related('user', 'address').prefetch_related('order_items__product').order_by('-date_of_order')[:last_n]
+        last_orders = OrderSerializer(last_orders_qs, many=True).data
+
+        top_products_qs = Product.objects.filter(seller=user).order_by('-num_of_sales')[:top_n]
+        top_products = ProductSerializer(top_products_qs, many=True).data
+
+        dashboard_data = {
+            'total_products': total_products,
+            'total_coupons': total_coupons,
+            'total_occasions': total_occasions,
+            'total_orders': total_orders,
+            'total_revenue': total_revenue,
+            'last_orders': last_orders,
+            'top_products': top_products,
+        }
+
+        return Response(dashboard_data, status=status.HTTP_200_OK)
+
+
