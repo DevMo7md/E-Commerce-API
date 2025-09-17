@@ -31,12 +31,12 @@ An E-Commerce API project built using **Python** and **Django**, with HTML templ
 - Add Sellers Applications System.
 - Add Coupons and Ocassion System.
 - Fully documented API using Postman.
+- Add delivery system
 
 
 ### ⏳ Pending
 
 - Postgress database integration.
-- integration with delevry company
 - Payment gateway integration (Paymob) (Now : On delevry).
 - Security improvements (CSRF Protection).
 - Full project testing and deployment to production.
@@ -92,8 +92,8 @@ E-Commerce-API/
 | ✅ Done    | Add Sellers Applications System.                        |
 | ✅ Done    | Add Coupons and Ocassion System.                        |
 | ✅ Done    | API documentation via Postman                           |
+| ✅ Done    | Add delivery system                                     |
 | ⏳ Pending | Postgress database integration.                         |
-| ⏳ Pending | integration with delevry company                        |
 | ⏳ Pending | Payment gateway integration (Paymob) (Now : On delevry) |
 | ⏳ Pending | Security enhancements (CSRF)                            |
 | ⏳ Pending | Full testing and production deployment                  |
