@@ -58,6 +58,21 @@
                     <strong>Shipping Address:</strong> {{order.address|default:"-" }}
                   </p>
                 </div>
+                <br />
+                <hr />
+                {% if order.delivery_man %}
+                <div style="margin-bottom: 24px">
+                  <p style="margin: 4px 0; color: #22223b">
+                    <strong>Delivery Man:</strong> {{ order.delivery_man.delivery_applications.first.full_name|default:order.delivery_man.first_name }}
+                  </p>
+                  <p style="margin: 4px 0; color: #22223b">
+                    <strong>Delivery Man Email:</strong> {{ order.delivery_man.email|default:"-" }}
+                  </p>
+                  <p style="margin: 4px 0; color: #22223b">
+                    <strong>Delivery Man Phone:</strong> {{ order.delivery_man.phone_number|default:"-" }}
+                  </p>
+                </div>
+                {% endif %}
                 <table
                   width="100%"
                   cellpadding="0"

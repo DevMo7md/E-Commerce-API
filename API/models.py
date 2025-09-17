@@ -147,6 +147,7 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     total_items = models.PositiveIntegerField(null=True, blank=True)
     total_weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    delivery_man = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
 
 
     def __str__(self):
@@ -169,7 +170,7 @@ class Purchase(models.Model):
         return f"Purchase by {self.user.email} on {self.purchase_date}"
 
 
-class SellerAppStatus(models.TextChoices):
+class AppsStatus(models.TextChoices):
     PENDING = 'PENDING', 'جاري المراجعة'
     REJECTED = 'REJECTED', 'مرفوض'
     APPROVED = 'APPROVED', 'مقبول'
@@ -182,7 +183,7 @@ class SellersApplication(models.Model):
     address = models.TextField()
     description = models.TextField()
     application_date = models.DateTimeField(auto_now_add=True)
-    request_status = models.CharField(max_length=50, choices=SellerAppStatus.choices, default=SellerAppStatus.PENDING)
+    request_status = models.CharField(max_length=50, choices=AppsStatus.choices, default=AppsStatus.PENDING)
     rejection_reason = models.TextField(null=True, blank=True)
     #documents
 
@@ -192,6 +193,29 @@ class SellersApplication(models.Model):
 class SellerDocuments(models.Model):
     application = models.ForeignKey(SellersApplication, on_delete=models.CASCADE, related_name='documents')
     document = models.FileField(upload_to='seller_documents/') # 3 Documents (ID(front), ID(back), ID(Selfie))
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Document for {self.application.user.email} uploaded at {self.uploaded_at}" 
+    
+class DeliveryApplication(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='delivery_applications')
+    full_name = models.CharField(max_length=200)
+    zone = models.CharField(max_length=200, null=True, blank=True)
+    phone_number = models.CharField(max_length=20)
+    address = models.TextField()
+    description = models.TextField()
+    application_date = models.DateTimeField(auto_now_add=True)
+    request_status = models.CharField(max_length=50, choices=AppsStatus.choices, default=AppsStatus.PENDING)
+    rejection_reason = models.TextField(null=True, blank=True)
+    #documents
+
+    def __str__(self):
+        return f"Delivery Application by {self.user.email}"
+    
+class DeliveryDocuments(models.Model):
+    application = models.ForeignKey(DeliveryApplication, on_delete=models.CASCADE, related_name='documents')
+    document = models.FileField(upload_to='Delivery_documents/') # 3 Documents (ID(front), ID(back), ID(Selfie))
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

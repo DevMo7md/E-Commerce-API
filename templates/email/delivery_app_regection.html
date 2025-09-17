@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Application Rejected</title>
+  </head>
+  <body
+    style="
+      background: #f6f8fa;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="background: #f6f8fa; padding: 24px 0"
+    >
+      <tr>
+        <td align="center">
+          <table
+            width="520"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              background: #fff;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+              padding: 32px 24px;
+            "
+          >
+            <tr>
+              <td>
+                <div style="text-align: center; margin-bottom: 24px">
+                  <h2 style="color: #dc3545; margin: 0">
+                    Application Rejected
+                  </h2>
+                </div>
+                <p style="color: #22223b; font-size: 16px">
+                  Dear {{ application.user.get_full_name|default:application.user.username }},
+                </p>
+                <p style="color: #22223b; font-size: 16px">
+                  We regret to inform you that your delivery application has
+                  been <strong style="color: #dc3545">rejected</strong>.
+                </p>
+                <p style="color: #22223b; font-size: 16px">
+                  The reason for this decision is as follows: {{ application.rejection_reason|default:"Not specified" }}.
+                </p>
+                <p style="color: #22223b; font-size: 16px">
+                  If you have questions or believe this was a mistake, please
+                  reply to this email or contact our support team.
+                </p>
+                <p
+                  style="
+                    color: #888;
+                    font-size: 13px;
+                    text-align: center;
+                    margin-top: 24px;
+                  "
+                >
+                  &copy; {{ now|date:"Y" }} Your Company Name. All rights
+                  reserved.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

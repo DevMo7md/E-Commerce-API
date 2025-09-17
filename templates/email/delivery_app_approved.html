@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Application Approved</title>
+  </head>
+  <body
+    style="
+      background: #f6f8fa;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="background: #f6f8fa; padding: 24px 0"
+    >
+      <tr>
+        <td align="center">
+          <table
+            width="520"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              background: #fff;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+              padding: 32px 24px;
+            "
+          >
+            <tr>
+              <td>
+                <div style="text-align: center; margin-bottom: 24px">
+                  <h2 style="color: #28a745; margin: 0">Congratulations!</h2>
+                </div>
+                <p style="color: #22223b; font-size: 16px">
+                  Dear {{ application.user.get_full_name|default:application.user.username }},
+                </p>
+                <p style="color: #22223b; font-size: 16px">
+                  Your delivery application has been
+                  <strong style="color: #28a745">approved</strong>!
+                </p>
+                <p style="color: #22223b; font-size: 16px">
+                  Welcome to our delivery team. You can now access your delivery
+                  dashboard and start accepting orders.
+                </p>
+                <div style="margin: 24px 0; text-align: center">
+                  <a
+                    href="#"
+                    style="
+                      background: #007bff;
+                      color: #fff;
+                      padding: 12px 24px;
+                      border-radius: 4px;
+                      text-decoration: none;
+                      font-weight: bold;
+                    "
+                  >
+                    Go to Dashboard
+                  </a>
+                </div>
+                <p
+                  style="
+                    color: #888;
+                    font-size: 13px;
+                    text-align: center;
+                    margin-top: 24px;
+                  "
+                >
+                  If you have any questions, reply to this email.<br />
+                  &copy; {{ now|date:"Y" }} Your Company Name. All rights
+                  reserved.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

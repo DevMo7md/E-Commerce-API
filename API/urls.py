@@ -27,9 +27,14 @@ urlpatterns = [
     path('purchase/', views.PurchaseList.as_view(), name='purchase'),
     path('addresses/', views.AddressList.as_view(), name='addresses'),
     path('addresses/<int:pk>/', views.AddressDetails.as_view(), name='address'),
+    # Application Management
     path('sellers-applications/', views.SellerApp.as_view(), name='sellers_applications'),
     path('sellers-applications/<int:pk>/', views.SellerAppDetails.as_view(), name='sellers_applications_details'),
     path('sellers-applications/<int:pk>/update-status/', views.SellerApproveReject.as_view(), name='sellers_applications_approve_reject'),
+    path('delivery-applications/', views.DeliveryApp.as_view(), name='delivery_applications'),
+    path('delivery-applications/<int:pk>/', views.DeliveryAppDetails.as_view(), name='delivery_applications_details'),
+    path('delivery-applications/<int:pk>/update-status/', views.DeliveryApproveReject.as_view(), name='delivery_applications_approve_reject'),
+    # dashboards
     path('coupons/', views.CouponList.as_view(), name='coupons'),
     path('coupons/<int:pk>/', views.CouponDetails.as_view(), name='coupon_details'),
     path('occasions/', views.OccasionList.as_view(), name='occasions'),
@@ -38,6 +43,8 @@ urlpatterns = [
     path('users/<str:pk>/', views.UserDetails.as_view(), name='user_details'),
     path('admin-dashboard/', views.AdminDashboard.as_view(), name='admin_dashboard'),
     path('seller-dashboard/', views.SellerDashboard.as_view(), name='seller_dashboard'),
+    path('delivery-dashboard/', views.DeliveryDashboard.as_view(), name='delivery-dashboard'),
+    # Authentication
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('google-login/', views.GoogleLoginView.as_view(), name='google-login'),

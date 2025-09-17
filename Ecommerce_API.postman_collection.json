@@ -17,7 +17,7 @@
 					"formdata": [
 						{
 							"key": "email",
-							"value": "test@gmail.com",
+							"value": "tester.eng.dev@gmail.com",
 							"type": "text"
 						},
 						{
@@ -66,7 +66,7 @@
 						},
 						{
 							"key": "email",
-							"value": "tester@gmail.com",
+							"value": "tester.eng.dev@gmail.com",
 							"type": "text"
 						},
 						{
@@ -76,12 +76,12 @@
 						},
 						{
 							"key": "phone_number",
-							"value": "0000000000",
+							"value": "01229963091",
 							"type": "text"
 						},
 						{
 							"key": "address",
-							"value": "Government-City-st:Street",
+							"value": "Dakahlia-MitGhamr-st:AlabrarHospital",
 							"type": "text"
 						},
 						{
@@ -300,7 +300,7 @@
 						},
 						{
 							"key": "email",
-							"value": "test@gmail.com",
+							"value": "mhmd55555yo@gmail.com",
 							"type": "text"
 						},
 						{
@@ -1348,13 +1348,25 @@
 		},
 		{
 			"name": "update_order_status(delevery)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NDYyMzg3LCJpYXQiOjE3NTc0NjIwODcsImp0aSI6ImFlMjE1MzhmOTlmNTQzODlhZjEzOTFmYTgyNmRkODg2IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.91vMgfuD8cglWFqUfpoqktmt8qKdXyW-MaAHk8kfKB8",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTEwNTMxLCJpYXQiOjE3NTgxMTAyMzEsImp0aSI6ImQyYWEwYTA2MTUyMDRmZTZiYmU2NTQ0NzE4ZmE5NDIyIiwidXNlcl9pZCI6IjIzMzY0ZGEyLThmZGUtNGI4Ny1hNWRlLWEyZTU5MjAwMDUwZiJ9.PJc50x9_M7F1i25Ho7KxDjA5m2H7gYJli21s_3iUoKo",
 							"type": "string"
 						}
 					]
@@ -1378,19 +1390,19 @@
 					]
 				},
 				"url": {
-					"raw": "{{baseURL}}/api/orders/51/update-status/",
+					"raw": "{{baseURL}}/api/orders/49/update-status/",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"api",
 						"orders",
-						"51",
+						"49",
 						"update-status",
 						""
 					]
 				},
-				"description": "Delivery man commit it On Delivering\n\npayment_status : PENDING , PAID, FAILED, REFUNDED\n\nstatus (order_status) : PENDING, ON_DELIVERY, DELIVERED, FAILED, RETRIEVED"
+				"description": "Delivery man commit it On Delivering\n\npayment_status : PENDING , PAID, FAILED, REFUNDED --> default = PAID because the buseness logic is (Cash on delivery)\n\nstatus (order_status) : PENDING, ON_DELIVERY, DELIVERED, FAILED, RETRIEVED"
 			},
 			"response": []
 		},
@@ -1649,7 +1661,7 @@
 						},
 						{
 							"key": "phone_num",
-							"value": "00000000000",
+							"value": "01229963091",
 							"type": "text"
 						}
 					]
@@ -1703,7 +1715,7 @@
 					"formdata": [
 						{
 							"key": "new_email",
-							"value": "test@gmail.com",
+							"value": "tender232006@gmail.com",
 							"type": "text"
 						}
 					]
@@ -2084,17 +2096,17 @@
 					"formdata": [
 						{
 							"key": "full_name",
-							"value": "test name",
+							"value": "mustafa tamer younis",
 							"type": "text"
 						},
 						{
 							"key": "address",
-							"value": "Government-City-Olilah",
+							"value": "Dakahlia-mitghamr-Olilah",
 							"type": "text"
 						},
 						{
 							"key": "phone_number",
-							"value": "00000000000",
+							"value": "01272517988",
 							"type": "text"
 						},
 						{
@@ -2204,7 +2216,7 @@
 						},
 						{
 							"key": "address",
-							"value": "Government-City-Area",
+							"value": "وليله ميت غمر",
 							"type": "text"
 						},
 						{
@@ -3015,6 +3027,397 @@
 						}
 					]
 				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delivery Dashboard",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTA5NzkwLCJpYXQiOjE3NTgxMDk0OTAsImp0aSI6Ijc0NDNlMDVkZWI3NzRhZTNiODJhMTkwOTgwOTkyMzJkIiwidXNlcl9pZCI6IjIzMzY0ZGEyLThmZGUtNGI4Ny1hNWRlLWEyZTU5MjAwMDUwZiJ9.sTktnm_mH_M3aatxf-P5fyhQiZasVGd_OwL8u8iGgyo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/delivery-dashboard/?status=PENDING&date_from=19-8-2025&date_to=20-8-2025",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"delivery-dashboard",
+						""
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "PENDING"
+						},
+						{
+							"key": "date_from",
+							"value": "19-8-2025"
+						},
+						{
+							"key": "date_to",
+							"value": "20-8-2025"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delivery Dashboard",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTA5NzkwLCJpYXQiOjE3NTgxMDk0OTAsImp0aSI6Ijc0NDNlMDVkZWI3NzRhZTNiODJhMTkwOTgwOTkyMzJkIiwidXNlcl9pZCI6IjIzMzY0ZGEyLThmZGUtNGI4Ny1hNWRlLWEyZTU5MjAwMDUwZiJ9.sTktnm_mH_M3aatxf-P5fyhQiZasVGd_OwL8u8iGgyo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "order_id",
+							"value": "49",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/delivery-dashboard/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"delivery-dashboard",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delivery app",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTA5NjUyLCJpYXQiOjE3NTgxMDkzNTIsImp0aSI6Ijc3YTA5Y2I3OGJlZDQ3YTY5YzkwYjhhOWEwZTM1NzIyIiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.oTB-3A_u3ahwSFjWRmD4rajz5QK0BuA1pirRqoBaGH0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/delivery-applications/?status=APPROVED&delivery=Mohammed",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"delivery-applications",
+						""
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "APPROVED"
+						},
+						{
+							"key": "delivery",
+							"value": "Mohammed"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delivery App",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTExNjk4LCJpYXQiOjE3NTgxMTEzOTgsImp0aSI6Ijc1ODljY2E5MDQwYzQ0YTc4NzEzYWNiZDBhM2YyMDJhIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.Q6nMMIIGMVc2O7h9idgrUpkMzFTZM9lDP2oqmqJCFqg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "full_name",
+							"value": "Ahmed Younis",
+							"type": "text"
+						},
+						{
+							"key": "zone",
+							"value": "Diarb Negm",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "معايا عربيه اقدر اوصل لميت غمر كلها",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "Sharkia, Zagazig",
+							"type": "text"
+						},
+						{
+							"key": "phone_number",
+							"value": "00000000000",
+							"type": "text"
+						},
+						{
+							"key": "documents",
+							"type": "file",
+							"src": [
+								"postman-cloud:///1f093ad9-a750-4170-8fb1-e09b7b490c95",
+								"postman-cloud:///1f093ad9-a79e-4370-96af-9b9fe6ba0aad",
+								"postman-cloud:///1f093ad9-a75c-44c0-a704-51bfa221fbc1"
+							]
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/delivery-applications/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"delivery-applications",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delivery App Details",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTA5NDI5LCJpYXQiOjE3NTgxMDkxMjksImp0aSI6ImUwMzQzZWQ5YTNjMDQwNTRiZTVhZjAwYWQzNzg2MzczIiwidXNlcl9pZCI6IjIzMzY0ZGEyLThmZGUtNGI4Ny1hNWRlLWEyZTU5MjAwMDUwZiJ9.Bezd_YcFnd0yMWn5QlqouHIXnBeuyVnUXokCRJt-Q2o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/delivery-applications/3/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"delivery-applications",
+						"3",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delivery App Details",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTExODc0LCJpYXQiOjE3NTgxMTE1NzQsImp0aSI6IjNlNzYxMzZlYjk5MDQ4Y2JiMDg0ODA3ZDE2MjQ1MzBhIiwidXNlcl9pZCI6IjE1ZTBmYjNlLTE2MTUtNDdlYi04OGVkLTMzODQ5NDM0YjE2YiJ9.d4H6PZN47WTtZM9EOu10xL3MvmE5ilCRqvhOeJRQ-Co",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "full_name",
+							"value": "Mahmoud Tamer Younis",
+							"type": "text"
+						},
+						{
+							"key": "zone",
+							"value": "Zagazig",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "معايا سكوتر اقدر اوصل لميت غمر كلها",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "dakahlia, Mit-ghamr",
+							"type": "text"
+						},
+						{
+							"key": "phone_number",
+							"value": "00000000000",
+							"type": "text"
+						},
+						{
+							"key": "documents",
+							"type": "file",
+							"src": [
+								"postman-cloud:///1f093ad9-a750-4170-8fb1-e09b7b490c95",
+								"postman-cloud:///1f093ad9-a75c-44c0-a704-51bfa221fbc1",
+								"postman-cloud:///1f093ad9-a79e-4370-96af-9b9fe6ba0aad"
+							]
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/delivery-applications/4/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"delivery-applications",
+						"4",
+						""
+					]
+				},
+				"description": "Check you delete previous documents before add the new documents\n\nif not new document you can do not sent it with request"
+			},
+			"response": []
+		},
+		{
+			"name": "Delivery App Details",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTA5NDI5LCJpYXQiOjE3NTgxMDkxMjksImp0aSI6ImUwMzQzZWQ5YTNjMDQwNTRiZTVhZjAwYWQzNzg2MzczIiwidXNlcl9pZCI6IjIzMzY0ZGEyLThmZGUtNGI4Ny1hNWRlLWEyZTU5MjAwMDUwZiJ9.Bezd_YcFnd0yMWn5QlqouHIXnBeuyVnUXokCRJt-Q2o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/delivery-applications/2/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"delivery-applications",
+						"2",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update delivery app status (admin)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MTExNzc0LCJpYXQiOjE3NTgxMTE0NzQsImp0aSI6IjVmMTZmNDU3YzQwNzRmNWI4MzZhZjA0YzliMTllYzM0IiwidXNlcl9pZCI6IjFhNjJmYWUyLTUzN2MtNDkwZS1iMWRmLTY3YThiNGVmZmIxOSJ9.AgLH_wfJHGezgi6K4-h8vFwkjGTnuTYCicLxUvRExGY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "request_status",
+							"value": "APPROVED",
+							"type": "text"
+						},
+						{
+							"key": "rejection_reason",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/delivery-applications/4/update-status/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"delivery-applications",
+						"4",
+						"update-status",
+						""
+					]
+				},
+				"description": "status = \\[APPROVED, PENDING, REJECTED\\]\n\nif status = REJECTED it must be rejection_reason"
 			},
 			"response": []
 		}

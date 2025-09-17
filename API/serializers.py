@@ -148,9 +148,9 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'id', 'user', 'address', 'date_of_order', 'payment_status','status', 
-            'total_price', 'total_items', 'order_items', 'items', 'shipping_status', 'total_weight', 'coupon_code'
+            'total_price', 'total_items', 'order_items', 'items', 'shipping_status', 'total_weight', 'coupon_code', 'delivery_man'
         ]
-        read_only_fields = ['id', 'date_of_order', 'total_items', 'total_price', 'user' , 'payment_status','status', 'total_weight', 'shipping_status', 'coupon_code']
+        read_only_fields = ['id', 'date_of_order', 'total_items', 'total_price', 'user' , 'payment_status','status', 'total_weight', 'shipping_status', 'coupon_code', 'delivery_man' ]
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -323,6 +323,14 @@ class SellerConfirmationSerializer(serializers.ModelSerializer):
         read_only_fields = []
 
     
+    def validate(self, data):
+        
+        if data.get('request_status') == 'REJECTED' and not data.get('rejection_reason'):
+            raise serializers.ValidationError(
+                {"rejection_reason": "Rejection reason is required when rejecting an application."}
+            )
+        return data
+
     def update(self, instance, validated_data):
 
         previous_status = instance.request_status
@@ -334,6 +342,93 @@ class SellerConfirmationSerializer(serializers.ModelSerializer):
             user = instance.user
             user.is_seller = True
             user.save()
+        return instance
+    
+
+class DeliveryApplicationSerializer(serializers.ModelSerializer):
+
+    documents = serializers.ListField(
+        child=serializers.FileField(), write_only=True, required=False
+    ) # For uploading new documents
+    uploaded_documents = serializers.SerializerMethodField(read_only=True) # To display existing documents
+    class Meta:
+        model = DeliveryApplication
+        fields = ['id', 'user', 'full_name', 'zone', 'address', 'phone_number', 'description', 'request_status', 'application_date', 'documents', 'uploaded_documents', 'rejection_reason']
+        read_only_fields = ['id', 'user', 'request_status', 'application_date', 'rejection_reason']
+        
+    def get_uploaded_documents(self, obj):
+        return [doc.document.url for doc in obj.documents.all()]
+    
+    def validate_documents(self, value):
+        if len(value) > 3:
+            raise serializers.ValidationError("You can upload a maximum of 3 documents.")
+        return value
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        documents = validated_data.pop('documents', [])
+
+        applications = DeliveryApplication.objects.filter(user=user, request_status__in=['PENDING', 'APPROVED'])
+        if applications.exists():
+            raise serializers.ValidationError("You have already applied to be a delivery.")
+        
+        application = DeliveryApplication.objects.create(user=user, **validated_data)
+
+        for document in documents:
+            DeliveryDocuments.objects.create(application=application, document=document)
+
+        return application
+    
+    def update(self, instance, validated_data):
+        documents = validated_data.pop('documents', [])
+
+        # تحديث الحقول العادية
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # التعامل مع المستندات
+        existing_docs_count = instance.documents.count()
+        if existing_docs_count + len(documents) > 3:
+            raise serializers.ValidationError("You can upload a maximum of 3 documents per application.")
+
+        # إضافة المستندات الجديدة
+        for doc in documents:
+            DeliveryDocuments.objects.create(application=instance, document=doc)
+
+        return instance
+
+
+class DeliveryConfirmationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryApplication
+        fields = ['request_status', 'rejection_reason']
+        read_only_fields = []
+
+    def validate(self, data):
+        
+        if data.get('request_status') == 'REJECTED' and not data.get('rejection_reason'):
+            raise serializers.ValidationError(
+                {"rejection_reason": "Rejection reason is required when rejecting an application."}
+            )
+        return data
+    
+    def update(self, instance, validated_data):
+
+        previous_status = instance.request_status
+        instance.request_status = validated_data.get('request_status', instance.request_status)
+        instance.rejection_reason = validated_data.get('rejection_reason', instance.rejection_reason)
+        instance.save()
+
+        if previous_status != instance.request_status and instance.request_status == 'APPROVED':
+            user = instance.user
+            user.is_delivery = True
+            user.save()
+        
+        elif previous_status == 'APPROVED' and new_status != 'APPROVED':
+            user.is_delivery = False
+            user.save()
+
         return instance
     
 

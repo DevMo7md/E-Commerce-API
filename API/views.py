@@ -696,7 +696,10 @@ class OrderDeleviring(APIView):
 
     def put(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
+        previous_status = order.status
         cart, _ = Cart.objects.get_or_create(user=order.user)
+        if previous_status == request.data.get('status'):
+            return Response({'message':'Order status is already set to this value'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = OrderDeleviringSerializer(order, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -802,13 +805,20 @@ class SellerApp(APIView):
             serializer = SellersApplicationSerializer(paginated_applications, many=True)
             response_data = {
                 "applications": serializer.data,
+                "pagination": {
+                    "count": applications.count(),
+                    "next": paginator.get_next_link(),
+                    "previous": paginator.get_previous_link(),
+                },
                 "total_applications": applications.count()
             }
             return Response(response_data, status=status.HTTP_200_OK)
         
-        application = SellersApplication.objects.filter(user=user).order_by('-application_date')
-        serializer = SellersApplicationSerializer(application, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if user.seller_applications.exists():
+            application = user.seller_applications.all().order_by('-application_date')
+            serializer = SellersApplicationSerializer(application, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
     
 
 def seller_app_confimation_email(application):
@@ -877,6 +887,132 @@ class SellerApproveReject(APIView):
                 seller_app_confimation_email(serializer.instance)
             elif serializer.instance.request_status == 'REJECTED':
                 seller_app_rejection_email(serializer.instance)
+            else :
+                pass
+            return Response({'detail': 'Application status updated successfully','application': serializer.data}, status=status.HTTP_200_OK) # (to front) Return updated application data without ID or any sensitive info
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def delivery_app_admin_email(application):
+    subject = 'New application'
+    html_message = render_to_string('email/new_delivery_application.html', {'application': application})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, application.user.email, [settings.DEFAULT_FROM_EMAIL])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
+class DeliveryApp(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        if DeliveryApplication.objects.filter(user=user, request_status__in=['PENDING', 'APPROVED']).exists():
+            return Response({'message':'You already have an application'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = DeliveryApplicationSerializer(data=request.data, context={'request':request}) # Validate and deserialize input data
+        if serializer.is_valid():
+            serializer.save()
+            delivery_app_admin_email(serializer.instance) #--> serializer.instance is the application object
+            return Response({'message':'Application submitted successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request):
+        user = request.user
+
+        if user.is_staff:
+            applications = DeliveryApplication.objects.all().order_by('-application_date')
+            status_filter = request.query_params.get('status')
+            if status_filter:
+                applications = applications.filter(request_status=status_filter)
+            delivery_filter = request.query_params.get('delivery')
+            if delivery_filter:
+                applications = applications.filter(Q(user__username__icontains=delivery_filter)| Q(user__email__icontains=delivery_filter)| Q(user__first_name__icontains=delivery_filter)| Q(user__last_name__icontains=delivery_filter) | Q(full_name__icontains=delivery_filter) | Q(address__icontains=delivery_filter) | Q(zone__icontains=delivery_filter))
+            paginator = PageNumberPagination()
+            paginated_applications = paginator.paginate_queryset(applications, request)
+            serializer = DeliveryApplicationSerializer(paginated_applications, many=True)
+            response_data = {
+                "applications": serializer.data,
+                "pagination": {
+                    "count": applications.count(),
+                    "next": paginator.get_next_link(),
+                    "previous": paginator.get_previous_link(),
+                },
+                "total_applications": applications.count()
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        
+        if user.delivery_applications.exists():
+            application = user.delivery_applications.all().order_by('-application_date')
+            serializer = DeliveryApplicationSerializer(application, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'message':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)    
+
+def delivery_app_confimation_email(application):
+    subject = 'Application Approved'
+    html_message = render_to_string('email/delivery_app_approved.html', {'application': application})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
+def delivery_app_rejection_email(application):
+    subject = 'Application Rejected'
+    html_message = render_to_string('email/delivery_app_regection.html', {'application': application})
+    plain_message = strip_tags(html_message)
+    email = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+
+
+class DeliveryAppDetails(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        application = get_object_or_404(DeliveryApplication, pk=pk)
+        if request.user == application.user or request.user.is_staff:
+            serializer = DeliveryApplicationSerializer(application, many=False)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
+    
+    def put(self, request, pk):
+        application = get_object_or_404(DeliveryApplication, pk=pk)
+        if request.user != application.user:
+            return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
+        
+        if application.request_status in ['APPROVED', 'REJECTED']:
+            return Response({'detail': 'You cannot update an application that has already been reviewed'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = DeliveryApplicationSerializer(application, data=request.data, context={'request':request}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'detail': 'Application updated successfully','application': serializer.data}, status=status.HTTP_200_OK) # (to front) Return updated application data without ID or any sensitive info
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        application = get_object_or_404(DeliveryApplication, pk=pk)
+        if request.user != application.user and not request.user.is_staff:
+            return Response({'detail':'This page is not allowed for you'}, status=status.HTTP_403_FORBIDDEN)
+        
+        if application.request_status in ['APPROVED', 'REJECTED'] and not request.user.is_staff:
+            return Response({'detail': 'You cannot delete an application that has already been reviewed'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        application.delete()
+        return Response({'detail':'Application deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class DeliveryApproveReject(APIView):
+    permission_classes = [IsAdminUser]
+
+    def put(self, request, pk):
+        application = get_object_or_404(DeliveryApplication, pk=pk)
+        serializer = DeliveryConfirmationSerializer(application, data=request.data, context={'request':request}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            if serializer.instance.request_status == 'APPROVED':
+                delivery_app_confimation_email(serializer.instance)
+            elif serializer.instance.request_status == 'REJECTED':
+                delivery_app_rejection_email(serializer.instance)
             else :
                 pass
             return Response({'detail': 'Application status updated successfully','application': serializer.data}, status=status.HTTP_200_OK) # (to front) Return updated application data without ID or any sensitive info
@@ -1073,7 +1209,11 @@ class UsersList(APIView):
         
         response_data = {
             "users": serializer.data,
+            "pagination": {
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
             "total_users": users.count()
+            }
         }
         return Response(response_data, status=status.HTTP_200_OK)
 
@@ -1259,4 +1399,75 @@ class SellerDashboard(APIView):
 
         return Response(dashboard_data, status=status.HTTP_200_OK)
 
+# Delivery Dashboard
+class DeliveryDashboard(APIView):
+    permission_classes = [IsDeliveryOrSuperUser]
 
+    def get(self, request):
+        user = request.user
+
+        # Orders not assigned to any delivery man (available to take)
+        unassigned_orders = Order.objects.filter(delivery_man__isnull=True).order_by('-date_of_order')
+
+        # Orders assigned to this delivery man
+        my_orders = Order.objects.filter(delivery_man=user).order_by('-date_of_order')
+
+        # Optional: Filtering by status
+        status_filter = request.query_params.get('status')
+        if status_filter:
+            unassigned_orders = unassigned_orders.filter(status=status_filter)
+            my_orders = my_orders.filter(status=status_filter)
+
+        # Optional: Filtering by date
+        date_from = request.query_params.get('date_from')
+        if date_from:
+            unassigned_orders = unassigned_orders.filter(date_of_order__date__gte=date_from)
+            my_orders = my_orders.filter(date_of_order__date__gte=date_from)
+        date_to = request.query_params.get('date_to')
+        if date_to:
+            unassigned_orders = unassigned_orders.filter(date_of_order__date__lte=date_to)
+            my_orders = my_orders.filter(date_of_order__date__lte=date_to)
+
+        # Pagination
+        paginator = PageNumberPagination()
+        paginator.page_size = int(request.query_params.get('page_size', 10))
+
+        paginated_unassigned = paginator.paginate_queryset(unassigned_orders, request, view=self)
+        unassigned_serializer = OrderSerializer(paginated_unassigned, many=True)
+
+        paginated_my_orders = paginator.paginate_queryset(my_orders, request, view=self)
+        my_orders_serializer = OrderSerializer(paginated_my_orders, many=True)
+
+        response = {
+            "unassigned_orders": unassigned_serializer.data,
+            "unassigned_orders_pagination": {
+                "count": unassigned_orders.count(),
+                "next": paginator.get_next_link(), # null !!
+                "previous": paginator.get_previous_link(), # null !!
+            },
+            "my_orders": my_orders_serializer.data,
+            "my_orders_pagination": {
+                "count": my_orders.count(),
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+            }
+        }
+        return Response(response, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        order_id = request.data.get('order_id')
+        if not order_id:
+            return Response({'detail': 'order_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return Response({'detail': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if order.delivery_man is not None:
+            return Response({'detail': 'Order is already assigned to a delivery man.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        order.delivery_man = request.user
+        order.save()
+
+        return Response({'message': 'Order assigned to you successfully.'}, status=status.HTTP_200_OK)
